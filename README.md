@@ -33,7 +33,7 @@ If you're using Git Bash then it's assumed you don't need instructions.
 2. If you already have a project open, click File > Close Project.
 3. Click Import Project
 4. Browse to the location you cloned the project to e.g.`C:\Users\user\Desktop\reversi` and click OK
-5. Select the second radio buttton `Import project from external model`
+5. Select the second radio button `Import project from external model`
 6. Select `Maven`
 7. Click Next > Next > Next
 8. Choose your JDK by clicking the green plus if a default isn't already selected.
