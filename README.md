@@ -1,4 +1,4 @@
-# Reversi
+# Reversi ![Build Badge](https://travis-ci.com/p-karanthaker/reversi.svg?token=cx1g9zoTt4Fpp1asNoMS&branch=master)
 Java implementation of the classic strategy game Reversi (aka Othello).
 
 ## Team Members
