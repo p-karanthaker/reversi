@@ -5,45 +5,44 @@ package uk.ac.aston.dc2060.group5.reversi.model;
  * Worked on by Dean 
  */
 public class Piece {
+
+
+	private PieceColor pieceColor;
 	
-	enum PieceColor {BLACK, WHITE}
-	
-	PieceColor BLACK = PieceColor.BLACK;
-	PieceColor WHITE = PieceColor.WHITE;
-	int pieceCoord;
-	PieceColor pieceColor;
-	
-	public Piece(PieceColor color, int coordinate) {
-		// TODO Auto-generated constructor stub
-		this.pieceCoord = coordinate;
-		if(color == BLACK) {
-			this.pieceColor = getBLACK();
-		} else {
-			this.pieceColor = getWHITE();
-		}
-	}
-	
-	public PieceColor getBLACK() {
-		return BLACK;
-	}
-	
-	public PieceColor getWHITE() {
-		return WHITE;
+	public Piece(PieceColor color) {
+    this.pieceColor = color;
 	}
 	
 	public PieceColor getPieceColor() {
 		return pieceColor;
 	}
 	
-	public int getPieceCoord() {
-		return pieceCoord;
-	}
-	
 	protected void flipPiece() {
-		if(pieceColor == BLACK) {
-			this.pieceColor = getWHITE();
-		} else if (pieceColor == WHITE) {
-			this.pieceColor = getBLACK();
+		if(pieceColor == PieceColor.BLACK) {
+			this.pieceColor = PieceColor.WHITE;
+		} else {
+			this.pieceColor = PieceColor.BLACK;
 		}
 	}
+
+	@Override
+  public String toString() {
+    return this.pieceColor.shortName;
+  }
+
+  public enum PieceColor {
+    BLACK("b"),
+    WHITE("w");
+
+    private String shortName;
+
+    PieceColor(String shortName) {
+      this.shortName = shortName;
+    }
+
+    public String getShortName() {
+      return this.shortName;
+    }
+  }
+
 }

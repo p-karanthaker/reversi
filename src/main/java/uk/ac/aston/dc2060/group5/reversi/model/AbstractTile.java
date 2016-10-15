@@ -5,78 +5,88 @@ package uk.ac.aston.dc2060.group5.reversi.model;
  */
 public abstract class AbstractTile {
 
-    /**
-     * @param tileCoordinate the coordinate of the tile on the board (8x8)
-     */
+  /**
+   * @param tileCoordinate the coordinate of the tile on the board (8x8)
+   */
 
-    public int tileCoordinate;
-    public abstract Piece getPiece();
-    public abstract boolean isVacant();
+  public int tileCoordinate;
 
-    public int getTileCoordinate(int tileCoordinate) {
+  public abstract Piece getPiece();
+
+  public abstract boolean isVacant();
+
+  public int getTileCoordinate(int tileCoordinate) {
     return tileCoordinate;
   }
 
 
-    //need to find a better way to return the tile variable
-    public static AbstractTile abstractTile(int tileCoordinate, Piece piece){
+  //need to find a better way to return the tile variable
+  public static AbstractTile abstractTile(int tileCoordinate, Piece piece) {
 
-        if (piece == null){
-            VacantTile tile = new VacantTile(tileCoordinate);
-            return tile;
+    if (piece == null) {
+      VacantTile tile = new VacantTile(tileCoordinate);
+      return tile;
 
-        }
-        else {
-            FullTile tile = new FullTile(tileCoordinate, piece);
-            return tile;
-        }
-
+    } else {
+      FullTile tile = new FullTile(tileCoordinate, piece);
+      return tile;
     }
 
-
-  }
-    class VacantTile extends AbstractTile {
-        public int tileCoordinate;
-
-
-
-        @Override
-        public Piece getPiece() {
-          return null;
-        }
-
-        @Override
-        public boolean isVacant() {
-          return false;
-        }
-
-        public VacantTile(int tileCoordinate) {
-            this.tileCoordinate = tileCoordinate;
-        }
   }
 
-    class FullTile extends AbstractTile {
-        public int tileCoordinate;
 
-        public Piece pieceOnTile;
+}
+
+class VacantTile extends AbstractTile {
+  public int tileCoordinate;
 
 
+  @Override
+  public Piece getPiece() {
+    return null;
+  }
 
-        @Override
-         public Piece getPiece() {
-           return null;
-         }
+  @Override
+  public boolean isVacant() {
+    return false;
+  }
 
-         @Override
-         public boolean isVacant() {
-           return false;
-         }
+  @Override
+  public String toString() {
+    return "-";
+  }
 
-        public FullTile(int tileCoordinate, Piece pieceOnTile) {
-            this.tileCoordinate = tileCoordinate;
-            this.pieceOnTile = pieceOnTile;
-        }
-   }
+  public VacantTile(int tileCoordinate) {
+    this.tileCoordinate = tileCoordinate;
+  }
+}
+
+class FullTile extends AbstractTile {
+  public int tileCoordinate;
+
+  public Piece pieceOnTile;
+
+
+  @Override
+  public Piece getPiece() {
+    return null;
+  }
+
+  @Override
+  public boolean isVacant() {
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return this.pieceOnTile.toString();
+  }
+
+  public FullTile(int tileCoordinate, Piece pieceOnTile) {
+    this.tileCoordinate = tileCoordinate;
+    this.pieceOnTile = pieceOnTile;
+  }
+}
 
 
 
