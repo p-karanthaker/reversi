@@ -1,20 +1,38 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
+import uk.ac.aston.dc2060.group5.reversi.model.Board;
+import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**
- * Created by Sam on 09/10/2016.
+ * Creates the view of the Reversi playing board.
+ *
+ * Created by Karan Thaker
  */
 public class BoardUI {
 
   private JFrame mainWindow;
   private BoardPanel boardPanel;
+  private Board boardModel;
+
+  private final Path PIECE_IMAGE_PATH = Paths.get("pieces/");
+  private final Path PIECE_BLACK_PATH = Paths.get("piece_black.png");
+  private final Path PIECE_WHITE_PATH = Paths.get("piece_white.png");
 
   public BoardUI() {
+    this.boardModel = new Board();
+    System.out.println(this.boardModel.toString());
+
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
     this.mainWindow.setSize(new Dimension(640, 640));
@@ -31,10 +49,13 @@ public class BoardUI {
     BoardPanel() {
       super(new GridLayout(8, 8));
       this.boardTiles = new ArrayList<TilePanel>();
-      int row = 1;
-      for (int i = 1; i < 65; i++) {
+      int row = 0;
+      for (int i = 0; i < 64; i++) {
         final TilePanel tilePanel = new TilePanel(this, i);
         this.boardTiles.add(tilePanel);
+
+        if (i % 8 == 0 && i != 0)
+          row++;
 
         if (row % 2 == 0) {
           if (i % 2 == 0)
@@ -48,10 +69,7 @@ public class BoardUI {
             tilePanel.setBackground(Color.decode("#2ecc71"));
         }
 
-
         add(tilePanel);
-        if (i % 8 == 0)
-          row++;
       }
       this.setPreferredSize(new Dimension(480, 480));
       this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -68,7 +86,26 @@ public class BoardUI {
     TilePanel(final BoardPanel boardPanel, final int tileId) {
       this.boardPanel = boardPanel;
       this.tileId = tileId;
-      this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      this.setLayout(new BorderLayout());
+      this.drawTileIcon(boardModel);
+    }
+
+    private void drawTileIcon(Board board) {
+      this.removeAll();
+      if (!board.getTile(this.tileId).isVacant()) {
+        PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
+        Path iPath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK_PATH : PIECE_WHITE_PATH;
+
+        InputStream imageStream = this.getClass().getClassLoader()
+            .getResourceAsStream(PIECE_IMAGE_PATH.resolve(iPath).toString());
+        try {
+          ImageIcon image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
+              .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+          this.add(new JLabel(image));
+        } catch (final IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
 
   }
