@@ -3,8 +3,7 @@ package uk.ac.aston.dc2060.group5.reversi.model;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.*;
 import java.util.Observable;
 import java.util.Stack;
 
@@ -16,9 +15,9 @@ import java.util.Stack;
 public class Board extends Observable {
 
   /**
-   * A list of every tile on the playing grid.
+   * An 8x8 2D array of every tile on the playing grid.
    */
-  private List<AbstractTile> grid;
+  private AbstractTile[][] grid;
 
   /**
    * A stack of white pieces available for play.
@@ -39,7 +38,7 @@ public class Board extends Observable {
    * Constructor which sets up the board and initialises the grid list and pieces stack.
    */
   public Board() {
-    this.grid = new ArrayList<AbstractTile>();
+    this.grid = new AbstractTile[8][8];
     this.whitePieces = new Stack<Piece>();
     this.blackPieces = new Stack<Piece>();
 
@@ -58,7 +57,30 @@ public class Board extends Observable {
    * @return return the tile with the given tile id.
    */
   public AbstractTile getTile(final int tileId) {
-    return this.grid.get(tileId);
+    final Point point = this.translateIndexToPoint(tileId);
+    return this.grid[point.y][point.x];
+  }
+
+  /**
+   * Translates an index value into a Point. This point can then be used to
+   * access the {@link #grid} using Point.x as the column, and Point.y as the row.
+   * @param tileId
+   * @return a Point object with Point.x as the column, and Point.y as the row of the array.
+   */
+  private Point translateIndexToPoint(final int tileId) {
+    // Translate tileId into a coordinate for 8x8 array.
+    int row = (int) (tileId / 8);
+    int col = tileId % 8;
+    return new Point(col, row);
+  }
+
+  /**
+   * Translates a Point into an index value.
+   * @param point
+   * @return
+   */
+  private int translatePointToIndex(final Point point) {
+    return point.y * 8 + point.x;
   }
 
   /**
@@ -73,13 +95,16 @@ public class Board extends Observable {
    * - - - - - - - -
    */
   private void boardSetup() {
-    for (int i = 0; i < 64; i++) {
-      if (i == 27 || i == 36)
-        this.grid.add(AbstractTile.createTile(i, this.whitePieces.pop()));
-      else if (i == 28 || i == 35)
-        this.grid.add(AbstractTile.createTile(i, this.blackPieces.pop()));
-      else
-        this.grid.add(AbstractTile.createTile(i, null));
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        int coordinate = this.translatePointToIndex(new Point(col, row));
+        if (row == col && (row == 3 || row == 4))
+          this.grid[row][col] = AbstractTile.createTile(coordinate, this.whitePieces.pop());
+        else if ((row == 3 || row == 4) && (col == 3 || col == 4))
+          this.grid[row][col] = AbstractTile.createTile(coordinate, this.blackPieces.pop());
+        else
+          this.grid[row][col] = AbstractTile.createTile(coordinate, null);
+      }
     }
   }
 
@@ -90,12 +115,11 @@ public class Board extends Observable {
   @Override
   public String toString() {
     StringBuilder output = new StringBuilder();
-    int count = 1;
-    for (AbstractTile tile : this.grid) {
-      output.append(tile.toString() + " ");
-      if (count % 8 == 0)
-        output.append("\n");
-      count++;
+    for (AbstractTile[] tileArray : this.grid) {
+      for (AbstractTile tile : tileArray) {
+        output.append(tile.toString() + " ");
+      }
+      output.append("\n");
     }
     return output.toString();
   }
