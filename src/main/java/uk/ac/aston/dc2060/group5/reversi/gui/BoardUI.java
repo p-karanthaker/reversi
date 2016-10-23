@@ -110,7 +110,7 @@ public class BoardUI implements Observer {
           if (boardModel.addPiece(PieceColour.BLACK, tileId)) {
             System.out.println("Added piece to tile: " + tileId);
           } else {
-            System.out.println("Tile is already full!");
+            System.out.println("Failed to add piece to tile.");
           }
         }
 
