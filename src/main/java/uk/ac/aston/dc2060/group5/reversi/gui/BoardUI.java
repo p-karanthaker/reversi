@@ -4,12 +4,16 @@ import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,7 +23,7 @@ import javax.swing.*;
  *
  * Created by Karan Thaker
  */
-public class BoardUI {
+public class BoardUI implements Observer {
 
   private JFrame mainWindow;
   private BoardPanel boardPanel;
@@ -31,6 +35,7 @@ public class BoardUI {
 
   public BoardUI() {
     this.boardModel = new Board();
+    this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
 
     this.mainWindow = new JFrame("Reversi");
@@ -40,6 +45,17 @@ public class BoardUI {
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
     this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     this.mainWindow.setVisible(true);
+  }
+
+  @Override
+  public void update(Observable o, Object arg) {
+    System.out.println("View: Added " + (PieceColour) arg +  " piece to " + o.getClass());
+    this.mainWindow.remove(boardPanel);
+    boardPanel = new BoardPanel();
+    this.mainWindow.add(boardPanel);
+    this.mainWindow.validate();
+    this.mainWindow.repaint();
+    System.out.println(boardModel);
   }
 
   private class BoardPanel extends JPanel {
@@ -88,6 +104,29 @@ public class BoardUI {
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
       this.drawTileIcon(boardModel);
+      this.addMouseListener(new MouseListener() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if (boardModel.addPiece(PieceColour.BLACK, tileId)) {
+            System.out.println("Added piece to tile: " + tileId);
+          } else {
+            System.out.println("Tile is already full!");
+          }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {}
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+
+        @Override
+        public void mouseExited(MouseEvent e) {}
+      });
     }
 
     private void drawTileIcon(Board board) {
