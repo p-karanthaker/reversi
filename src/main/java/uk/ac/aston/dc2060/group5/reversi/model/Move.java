@@ -68,7 +68,7 @@ public class Move {
                     boolean foundSameColour = false;
                     int finishRow = 0;
 
-                    for (int i = coords.y+2; i < 8; i++) {
+                    for (int i = coords.y+1; i < 8; i++) {
                         if (!foundSameColour) {
                             if (!validMove) {
                                 // Move is invalid in this direction so break out of loop
@@ -97,7 +97,7 @@ public class Move {
                     }
                     if (validMove && finishRow != 0) {
                         // Move is valid and we should flip some pieces!
-                        for (int i = coords.y+1; i < finishRow; i++) {
+                        for (int i = coords.y; i < finishRow; i++) {
                             board.getTile(i, col).getPiece().flipPiece();
                         }
 

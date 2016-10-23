@@ -141,8 +141,10 @@ public class Board extends Observable {
       //notify observer of the changes
       setChanged();
       notifyObservers(pieceColour);
+
+        return true;
     }
-    return grid[point.y][point.x].isVacant()== false ? true : false;
+    return false;
 
     }
 
