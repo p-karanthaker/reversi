@@ -75,6 +75,7 @@ public class Board extends Observable {
   }
 
   /**
+
    * Translates a Point into an index value.
    * @param point
    * @return
@@ -108,6 +109,36 @@ public class Board extends Observable {
     }
   }
 
+
+  /**
+   * Adds a piece to the board.
+   * @param
+   * @return
+   */
+  public Boolean addPiece(PieceColour pieceColour, int coordinate){
+
+    //translate the coordinate to grid array.
+    Point point = translateIndexToPoint(coordinate);
+
+    //if the array calculated is vacant
+    if(grid[point.x][point.y].isVacant() == true) {
+      //create new piece
+      Piece piece = new Piece(pieceColour);
+      //place the piece on the grid
+      grid[point.x][point.y] =  AbstractTile.createTile(coordinate, piece);
+
+      //notify observer of the changes
+      setChanged();
+      notifyObservers(pieceColour);
+    }
+      //else create a empty tile
+      else {
+        grid[point.x][point.y] = AbstractTile.createTile(coordinate, null);
+    }
+    return grid[point.x][point.y].isVacant()== false ? true : false;
+
+    }
+
   /**
    * Produces a nice string representation of the board with it's pieces.
    * @return a string representation of the board with it's pieces.
@@ -123,5 +154,8 @@ public class Board extends Observable {
     }
     return output.toString();
   }
+
+
+
 
 }
