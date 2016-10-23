@@ -62,12 +62,22 @@ public class Board extends Observable {
   }
 
   /**
+   * Returns the tile with the given coordinates.
+   * @param row the row coordinate.
+   * @param col the column coordinate.
+   * @return return the tile with the given coordinates.
+   */
+  public AbstractTile getTile(final int row, final int col) {
+    return this.grid[row][col];
+  }
+
+  /**
    * Translates an index value into a Point. This point can then be used to
    * access the {@link #grid} using Point.x as the column, and Point.y as the row.
    * @param tileId
    * @return a Point object with Point.x as the column, and Point.y as the row of the array.
    */
-  private Point translateIndexToPoint(final int tileId) {
+  public Point translateIndexToPoint(final int tileId) {
     // Translate tileId into a coordinate for 8x8 array.
     int row = (int) (tileId / 8);
     int col = tileId % 8;

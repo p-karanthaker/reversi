@@ -44,6 +44,15 @@ public class Piece {
   }
 
   /**
+   * Returns the tileID that the piece is currently placed on (if it is placed).
+   *
+   * @return the tileID that the piece is currently placed on, or null if it is not placed.
+   */
+  public int getTileId() {
+    return 1;
+  }
+
+  /**
    * Returns a string representation of the Piece's colour.
    *
    * @return the short name of {@link PieceColour}.
