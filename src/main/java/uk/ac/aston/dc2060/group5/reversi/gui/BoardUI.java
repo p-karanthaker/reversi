@@ -4,16 +4,12 @@ import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -22,9 +18,8 @@ import javax.swing.*;
  * Creates the view of the Reversi playing board.
  *
  * Created by Karan Thaker
- * Task 2 work: Dean Sohn
  */
-public class BoardUI implements Observer {
+public class BoardUI {
 
   private JFrame mainWindow;
   private BoardPanel boardPanel;
@@ -38,8 +33,7 @@ public class BoardUI implements Observer {
     this.boardModel = new Board();
     this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
-    this.boardModel.addObserver(this);
-    
+
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
     this.mainWindow.setSize(new Dimension(640, 640));
@@ -96,11 +90,10 @@ public class BoardUI implements Observer {
     }
   }
 
-  private class TilePanel extends JPanel implements MouseListener {
+  private class TilePanel extends JPanel {
 
     private final BoardPanel boardPanel;
     private final int tileId;
-    private MouseListener mouseListener;
 
     TilePanel(final BoardPanel boardPanel, final int tileId) {
       this.boardPanel = boardPanel;
@@ -149,47 +142,7 @@ public class BoardUI implements Observer {
         }
       }
     }
-    
-    private void createMouseListener() {
-    	this.addMouseListener(mouseListener);
-    	
-    }
-
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("Adding Piece to Tile");
-	}
-
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
   }
-
-public void update(Observable o, Object arg) {
-	// TODO Auto-generated method stub
-	this.boardPanel.removeAll();
-	this.boardPanel = new BoardPanel();
-	this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    this.mainWindow.setVisible(true);
-    this.mainWindow.validate();
-    this.mainWindow.repaint();
-	}
 
 }
