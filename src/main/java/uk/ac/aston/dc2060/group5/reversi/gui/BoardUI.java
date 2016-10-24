@@ -4,12 +4,16 @@ import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,7 +23,7 @@ import javax.swing.*;
  *
  * Created by Karan Thaker
  */
-public class BoardUI {
+public class BoardUI implements Observer {
 
   private JFrame mainWindow;
   private BoardPanel boardPanel;
