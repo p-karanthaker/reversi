@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  */
 public class Move {
 
-    public boolean makeMove(Board board, int row, int col, Piece pieceToPlace) {
+    public static boolean makeMove(Board board, int row, int col, Piece pieceToPlace) {
         // boolean variable to return at end of method, set to true if move is valid
         boolean moveMade = false;
 
@@ -24,15 +24,15 @@ public class Move {
         }
 
         // Create a list of the pieces in the surrounding tiles that are of the opposite colour
-        List<Piece> surroundingPieces = getOppositePieces(getSurroundingTiles(row, col, board), pieceToPlace);
+        List<AbstractTile> surroundingPieces = getOppositePieces(getSurroundingTiles(row, col, board), pieceToPlace);
 
         // Return false if there are no surrounding pieces of the opposite colour
         if (surroundingPieces.isEmpty()) {
             return false;
         }
 
-        for (Piece p : surroundingPieces) {
-            Point coords = board.translateIndexToPoint(p.getTileId());
+        for (AbstractTile t : surroundingPieces) {
+            Point coords = board.translateIndexToPoint(t.getTileCoordinate());
 
             if (coords.y == row-1) {
                 // Piece is in row above
@@ -68,7 +68,7 @@ public class Move {
                     boolean foundSameColour = false;
                     int finishRow = 0;
 
-                    for (int i = coords.y+2; i < 8; i++) {
+                    for (int i = coords.y+1; i < 8; i++) {
                         if (!foundSameColour) {
                             if (!validMove) {
                                 // Move is invalid in this direction so break out of loop
@@ -97,7 +97,7 @@ public class Move {
                     }
                     if (validMove && finishRow != 0) {
                         // Move is valid and we should flip some pieces!
-                        for (int i = coords.y+1; i < finishRow; i++) {
+                        for (int i = coords.y; i < finishRow; i++) {
                             board.getTile(i, col).getPiece().flipPiece();
                         }
 
@@ -124,7 +124,7 @@ public class Move {
      * @param board the board
      * @return a Point object with Point.x as the column, and Point.y as the row of the array.
      */
-    private List<AbstractTile> getSurroundingTiles(int row, int col, Board board) {
+    private static List<AbstractTile> getSurroundingTiles(int row, int col, Board board) {
         // Get all surrounding tiles and put them into a list.
         List<AbstractTile> surroundingTiles = new ArrayList<>();
 
@@ -187,12 +187,11 @@ public class Move {
      * @param centrePiece the piece to compare the list to
      * @return a list of pieces of the opposite colour from the passed in piece from the list of tiles passed in
      */
-    private List<Piece> getOppositePieces(List<AbstractTile> tiles, Piece centrePiece) {
+    private static List<AbstractTile> getOppositePieces(List<AbstractTile> tiles, Piece centrePiece) {
         return tiles
                 .stream()
                 .filter(tile -> !tile.isVacant())
-                .map(AbstractTile::getPiece)
-                .filter(piece -> piece.getPieceColour() != centrePiece.getPieceColour())
+                .filter(tile -> tile.getPiece().getPieceColour() != centrePiece.getPieceColour())
                 .collect(Collectors.toList());
     }
 

@@ -130,22 +130,21 @@ public class Board extends Observable {
     //translate the coordinate to grid array.
     Point point = translateIndexToPoint(coordinate);
 
+    //create new piece
+    Piece piece = new Piece(pieceColour);
+
     //if the array calculated is vacant
-    if(grid[point.x][point.y].isVacant() == true) {
-      //create new piece
-      Piece piece = new Piece(pieceColour);
+    if(Move.makeMove(this, point.y, point.x, piece)) {
       //place the piece on the grid
-      grid[point.x][point.y] =  AbstractTile.createTile(coordinate, piece);
+      grid[point.y][point.x] =  AbstractTile.createTile(coordinate, piece);
 
       //notify observer of the changes
       setChanged();
       notifyObservers(pieceColour);
+
+        return true;
     }
-      //else create a empty tile
-      else {
-        grid[point.x][point.y] = AbstractTile.createTile(coordinate, null);
-    }
-    return grid[point.x][point.y].isVacant()== false ? true : false;
+    return false;
 
     }
 

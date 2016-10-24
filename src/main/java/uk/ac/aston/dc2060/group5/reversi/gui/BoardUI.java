@@ -36,6 +36,7 @@ public class BoardUI implements Observer {
 
   public BoardUI() {
     this.boardModel = new Board();
+    this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
     this.boardModel.addObserver(this);
     
@@ -46,6 +47,17 @@ public class BoardUI implements Observer {
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
     this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     this.mainWindow.setVisible(true);
+  }
+
+  @Override
+  public void update(Observable o, Object arg) {
+    System.out.println("View: Added " + (PieceColour) arg +  " piece to " + o.getClass());
+    this.mainWindow.remove(boardPanel);
+    boardPanel = new BoardPanel();
+    this.mainWindow.add(boardPanel);
+    this.mainWindow.validate();
+    this.mainWindow.repaint();
+    System.out.println(boardModel);
   }
 
   private class BoardPanel extends JPanel {
@@ -95,6 +107,29 @@ public class BoardUI implements Observer {
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
       this.drawTileIcon(boardModel);
+      this.addMouseListener(new MouseListener() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if (boardModel.addPiece(PieceColour.BLACK, tileId)) {
+            System.out.println("Added piece to tile: " + tileId);
+          } else {
+            System.out.println("Failed to add piece to tile.");
+          }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {}
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {}
+
+        @Override
+        public void mouseExited(MouseEvent e) {}
+      });
     }
 
     private void drawTileIcon(Board board) {
