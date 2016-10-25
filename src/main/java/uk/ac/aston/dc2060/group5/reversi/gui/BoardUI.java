@@ -3,7 +3,11 @@ package uk.ac.aston.dc2060.group5.reversi.gui;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -16,12 +20,17 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 /**
  * Creates the view of the Reversi playing board.
  *
- * Created by Karan Thaker
+ * <p>Created by Karan Thaker</p>
  */
 public class BoardUI implements Observer {
 
@@ -49,7 +58,7 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    System.out.println("View: Added " + (PieceColour) arg +  " piece to " + o.getClass());
+    System.out.println("View: Added " + (PieceColour) arg + " piece to " + o.getClass());
     this.mainWindow.remove(boardPanel);
     boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel);
@@ -70,19 +79,22 @@ public class BoardUI implements Observer {
         final TilePanel tilePanel = new TilePanel(this, i);
         this.boardTiles.add(tilePanel);
 
-        if (i % 8 == 0 && i != 0)
+        if (i % 8 == 0 && i != 0) {
           row++;
+        }
 
         if (row % 2 == 0) {
-          if (i % 2 == 0)
+          if (i % 2 == 0) {
             tilePanel.setBackground(Color.decode("#2ecc71"));
-          else
+          } else {
             tilePanel.setBackground(Color.decode("#27ae60"));
+          }
         } else {
-          if (i % 2 == 0)
+          if (i % 2 == 0) {
             tilePanel.setBackground(Color.decode("#27ae60"));
-          else
+          } else {
             tilePanel.setBackground(Color.decode("#2ecc71"));
+          }
         }
 
         add(tilePanel);
@@ -115,17 +127,20 @@ public class BoardUI implements Observer {
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {}
+        public void mousePressed(MouseEvent e) {
+        }
 
         @Override
         public void mouseReleased(MouseEvent e) {
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {
+        }
 
         @Override
-        public void mouseExited(MouseEvent e) {}
+        public void mouseExited(MouseEvent e) {
+        }
       });
     }
 

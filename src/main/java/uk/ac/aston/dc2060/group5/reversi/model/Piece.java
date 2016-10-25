@@ -4,8 +4,10 @@ package uk.ac.aston.dc2060.group5.reversi.model;
  * Piece models a Reversi playing piece. A {@link Piece} has a {@link PieceColour} and can be
  * flipped in order to change it's colour.
  *
+ * <p>
  * Created by Dean Sohn
  * Reviewed by Karan Thaker
+ * </p>
  */
 public class Piece {
 
@@ -37,10 +39,11 @@ public class Piece {
    * black then the {@link PieceColour} will be white when flipped and vice-versa.
    */
   public void flipPiece() {
-    if (pieceColour.equals(PieceColour.BLACK))
+    if (pieceColour.equals(PieceColour.BLACK)) {
       this.pieceColour = PieceColour.WHITE;
-    else
+    } else {
       this.pieceColour = PieceColour.BLACK;
+    }
   }
 
   /**
