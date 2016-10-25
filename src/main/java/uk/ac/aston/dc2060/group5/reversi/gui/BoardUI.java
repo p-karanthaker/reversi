@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -38,9 +36,9 @@ public class BoardUI implements Observer {
   private BoardPanel boardPanel;
   private Board boardModel;
 
-  private final Path PIECE_IMAGE_PATH = Paths.get("pieces/");
-  private final Path PIECE_BLACK_PATH = Paths.get("piece_black.png");
-  private final Path PIECE_WHITE_PATH = Paths.get("piece_white.png");
+  private final String PIECE_IMAGE_DIR = "/pieces";
+  private final String PIECE_BLACK = "/piece_black.png";
+  private final String PIECE_WHITE = "/piece_white.png";
 
   public BoardUI() {
     this.boardModel = new Board();
@@ -148,10 +146,9 @@ public class BoardUI implements Observer {
       this.removeAll();
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        Path iPath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK_PATH : PIECE_WHITE_PATH;
+        String imagePath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK : PIECE_WHITE;
 
-        InputStream imageStream = this.getClass().getClassLoader()
-            .getResourceAsStream(PIECE_IMAGE_PATH.resolve(iPath).toString());
+        InputStream imageStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + imagePath);
         try {
           ImageIcon image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
               .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
