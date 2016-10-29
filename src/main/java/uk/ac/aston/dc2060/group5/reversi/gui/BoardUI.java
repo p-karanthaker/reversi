@@ -2,6 +2,8 @@ package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -40,8 +42,8 @@ public class BoardUI implements Observer {
   private final String PIECE_BLACK = "/piece_black.png";
   private final String PIECE_WHITE = "/piece_white.png";
 
-  public BoardUI() {
-    this.boardModel = new Board();
+  public BoardUI() { AbstractPlayer[] players = { new HumanPlayer(PieceColour.BLACK), new HumanPlayer(PieceColour.WHITE) };
+    this.boardModel = new Board(players);
     this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
 
@@ -117,7 +119,7 @@ public class BoardUI implements Observer {
       this.addMouseListener(new MouseListener() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          if (boardModel.addPiece(PieceColour.BLACK, tileId)) {
+          if (boardModel.addPiece(tileId)) {
             System.out.println("Added piece to tile: " + tileId);
           } else {
             System.out.println("Failed to add piece to tile.");

@@ -32,12 +32,25 @@ public class Board extends Observable {
   /**
    * The player who's turn it currently is.
    */
-  private AbstractPlayer currentPlayer;
+  private int currentPlayer;
+
+  /**
+   * Stores the players playing the game.
+   */
+  private AbstractPlayer[] players;
 
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
    */
-  public Board() {
+  public Board(AbstractPlayer[] players) {
+    if (players.length != 2) {
+      new IllegalStateException("Not enough players!");
+    } else if (players[0].getPlayerColour().equals(players[1].getPlayerColour())) {
+      new IllegalStateException("Players cannot be of same colour!");
+    }
+    this.players = players;
+    this.currentPlayer = 0;
+
     this.grid = new AbstractTile[8][8];
     this.whitePieces = new Stack<Piece>();
     this.blackPieces = new Stack<Piece>();
@@ -78,7 +91,7 @@ public class Board extends Observable {
    *
    * @return a Point object with Point.x as the column, and Point.y as the row of the array.
    */
-  public Point translateIndexToPoint(final int tileId) {
+  public static Point translateIndexToPoint(final int tileId) {
     // Translate tileId into a coordinate for 8x8 array.
     int row = (int) (tileId / 8);
     int col = tileId % 8;
@@ -88,7 +101,7 @@ public class Board extends Observable {
   /**
    * Translates a Point into an index value.
    */
-  private int translatePointToIndex(final Point point) {
+  public static int translatePointToIndex(final Point point) {
     return point.y * 8 + point.x;
   }
 
@@ -118,31 +131,46 @@ public class Board extends Observable {
     }
   }
 
+  /**
+   * Switches the current player.
+   */
+  private void switchPlayer() {
+    this.currentPlayer = this.currentPlayer == 0 ? 1 : 0;
+  }
+
+  /**
+   * Retrieves the current player from the player array.
+   * @return the current player.
+   */
+  public AbstractPlayer getCurrentPlayer() {
+    return this.players[this.currentPlayer];
+  }
 
   /**
    * Adds a piece to the board.
    */
-  public Boolean addPiece(PieceColour pieceColour, int coordinate) {
+  public Boolean addPiece(int coordinate) {
 
     //translate the coordinate to grid array.
     Point point = translateIndexToPoint(coordinate);
 
     //create new piece
-    Piece piece = new Piece(pieceColour);
+    Piece piece = new Piece(this.getCurrentPlayer().getPlayerColour());
 
     //if the array calculated is vacant
-    if (Move.makeMove(this, point.y, point.x, piece)) {
+    if (Move.makeMove(this, point.y, point.x)) {
       //place the piece on the grid
-      grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
+      this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
 
       //notify observer of the changes
       setChanged();
-      notifyObservers(pieceColour);
+      notifyObservers(this.getCurrentPlayer().getPlayerColour());
 
+      this.switchPlayer();
       return true;
     }
-    return false;
 
+    return false;
   }
 
   /**
