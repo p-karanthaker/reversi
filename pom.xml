@@ -29,20 +29,7 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>uk.ac.aston.dc2060.group5</groupId>
-      <artifactId>reversi</artifactId>
-      <version>${version}</version>
-    </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
