@@ -41,6 +41,8 @@ public class Board extends Observable {
 
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
+   *
+   * @param players the 2 players who are playing reversi.
    */
   public Board(AbstractPlayer[] players) {
     if (players.length != 2) {
@@ -89,6 +91,7 @@ public class Board extends Observable {
    * Translates an index value into a Point. This point can then be used to
    * access the {@link #grid} using Point.x as the column, and Point.y as the row.
    *
+   * @param tileId the tileId which we want a Point for.
    * @return a Point object with Point.x as the column, and Point.y as the row of the array.
    */
   public static Point translateIndexToPoint(final int tileId) {
@@ -100,6 +103,9 @@ public class Board extends Observable {
 
   /**
    * Translates a Point into an index value.
+   *
+   * @param point the Point to translate into an integer value for an 8x8 grid.
+   * @return an integer representation of a Point on an 8x8 grid.
    */
   public static int translatePointToIndex(final Point point) {
     return point.y * 8 + point.x;
@@ -148,8 +154,11 @@ public class Board extends Observable {
 
   /**
    * Adds a piece to the board.
+   *
+   * @param coordinate the coordinate to add a piece to.
+   * @return true if a piece was added to the board.
    */
-  public Boolean addPiece(int coordinate) {
+  public boolean addPiece(int coordinate) {
 
     //translate the coordinate to grid array.
     Point point = translateIndexToPoint(coordinate);

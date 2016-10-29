@@ -20,7 +20,7 @@ public class Move {
   /**
    * Attempts to make a move by checking if the tile is first of all free. Then checks in every
    * direction to see if the move is valid at all. If the move is valid, then the
-   * @link{#piecesToFlip} array will have items in it and the pieces will be flipped over.
+   * {@link #piecesToFlip} array will have items in it and the pieces will be flipped over.
    *
    * @param board the playing board.
    * @param row the row of the piece we want to place.
