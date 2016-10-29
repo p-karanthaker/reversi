@@ -20,7 +20,7 @@
   <scm>
     <developerConnection>scm:git:https://github.com/p-karanthaker/reversi</developerConnection>
     <url>https://github.com/p-karanthaker/reversi</url>
-    <tag>${artifactId}-1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
