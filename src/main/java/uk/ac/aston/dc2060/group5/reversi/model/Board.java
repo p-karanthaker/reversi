@@ -3,14 +3,14 @@ package uk.ac.aston.dc2060.group5.reversi.model;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.Observable;
 import java.util.Stack;
 
 /**
  * Board represents the logical model of a Reversi playing board.
  *
- * Created by Karan Thaker
+ * <p>Created by Karan Thaker</p>
  */
 public class Board extends Observable {
 
@@ -32,27 +32,42 @@ public class Board extends Observable {
   /**
    * The player who's turn it currently is.
    */
-  private AbstractPlayer currentPlayer;
+  private int currentPlayer;
+
+  /**
+   * Stores the players playing the game.
+   */
+  private AbstractPlayer[] players;
 
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
+   *
+   * @param players the 2 players who are playing reversi.
    */
-  public Board() {
+  public Board(AbstractPlayer[] players) {
+    if (players.length != 2) {
+      new IllegalStateException("Not enough players!");
+    } else if (players[0].getPlayerColour().equals(players[1].getPlayerColour())) {
+      new IllegalStateException("Players cannot be of same colour!");
+    }
+    this.players = players;
+    this.currentPlayer = 0;
+
     this.grid = new AbstractTile[8][8];
     this.whitePieces = new Stack<Piece>();
     this.blackPieces = new Stack<Piece>();
 
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++) {
       this.whitePieces.add(i, new Piece(PieceColour.WHITE));
-
-    for (int i = 0; i < 32; i++)
       this.blackPieces.add(i, new Piece(PieceColour.BLACK));
+    }
 
     this.boardSetup();
   }
 
   /**
    * Returns the tile with the given tile id.
+   *
    * @param tileId the id of the tile to return.
    * @return return the tile with the given tile id.
    */
@@ -63,6 +78,7 @@ public class Board extends Observable {
 
   /**
    * Returns the tile with the given coordinates.
+   *
    * @param row the row coordinate.
    * @param col the column coordinate.
    * @return return the tile with the given coordinates.
@@ -74,10 +90,11 @@ public class Board extends Observable {
   /**
    * Translates an index value into a Point. This point can then be used to
    * access the {@link #grid} using Point.x as the column, and Point.y as the row.
-   * @param tileId
+   *
+   * @param tileId the tileId which we want a Point for.
    * @return a Point object with Point.x as the column, and Point.y as the row of the array.
    */
-  public Point translateIndexToPoint(final int tileId) {
+  public static Point translateIndexToPoint(final int tileId) {
     // Translate tileId into a coordinate for 8x8 array.
     int row = (int) (tileId / 8);
     int col = tileId % 8;
@@ -85,12 +102,12 @@ public class Board extends Observable {
   }
 
   /**
-
    * Translates a Point into an index value.
-   * @param point
-   * @return
+   *
+   * @param point the Point to translate into an integer value for an 8x8 grid.
+   * @return an integer representation of a Point on an 8x8 grid.
    */
-  private int translatePointToIndex(final Point point) {
+  public static int translatePointToIndex(final Point point) {
     return point.y * 8 + point.x;
   }
 
@@ -109,47 +126,65 @@ public class Board extends Observable {
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
         int coordinate = this.translatePointToIndex(new Point(col, row));
-        if (row == col && (row == 3 || row == 4))
+        if (row == col && (row == 3 || row == 4)) {
           this.grid[row][col] = AbstractTile.createTile(coordinate, this.whitePieces.pop());
-        else if ((row == 3 || row == 4) && (col == 3 || col == 4))
+        } else if ((row == 3 || row == 4) && (col == 3 || col == 4)) {
           this.grid[row][col] = AbstractTile.createTile(coordinate, this.blackPieces.pop());
-        else
+        } else {
           this.grid[row][col] = AbstractTile.createTile(coordinate, null);
+        }
       }
     }
   }
 
+  /**
+   * Switches the current player.
+   */
+  private void switchPlayer() {
+    this.currentPlayer = this.currentPlayer == 0 ? 1 : 0;
+  }
+
+  /**
+   * Retrieves the current player from the player array.
+   * @return the current player.
+   */
+  public AbstractPlayer getCurrentPlayer() {
+    return this.players[this.currentPlayer];
+  }
 
   /**
    * Adds a piece to the board.
-   * @param
-   * @return
+   *
+   * @param coordinate the coordinate to add a piece to.
+   * @return true if a piece was added to the board.
    */
-  public Boolean addPiece(PieceColour pieceColour, int coordinate){
+  public boolean addPiece(int coordinate) {
 
     //translate the coordinate to grid array.
     Point point = translateIndexToPoint(coordinate);
 
     //create new piece
-    Piece piece = new Piece(pieceColour);
+    Piece piece = new Piece(this.getCurrentPlayer().getPlayerColour());
 
     //if the array calculated is vacant
-    if(Move.makeMove(this, point.y, point.x, piece)) {
+    if (Move.makeMove(this, point.y, point.x)) {
       //place the piece on the grid
-      grid[point.y][point.x] =  AbstractTile.createTile(coordinate, piece);
+      this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
 
       //notify observer of the changes
       setChanged();
-      notifyObservers(pieceColour);
+      notifyObservers(this.getCurrentPlayer().getPlayerColour());
 
-        return true;
+      this.switchPlayer();
+      return true;
     }
+
     return false;
-
-    }
+  }
 
   /**
    * Produces a nice string representation of the board with it's pieces.
+   *
    * @return a string representation of the board with it's pieces.
    */
   @Override
@@ -163,8 +198,6 @@ public class Board extends Observable {
     }
     return output.toString();
   }
-
-
 
 
 }

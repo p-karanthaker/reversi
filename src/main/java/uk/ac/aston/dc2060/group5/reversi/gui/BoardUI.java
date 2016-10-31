@@ -2,26 +2,35 @@ package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 /**
  * Creates the view of the Reversi playing board.
  *
- * Created by Karan Thaker
+ * <p>Created by Karan Thaker</p>
  */
 public class BoardUI implements Observer {
 
@@ -29,12 +38,12 @@ public class BoardUI implements Observer {
   private BoardPanel boardPanel;
   private Board boardModel;
 
-  private final Path PIECE_IMAGE_PATH = Paths.get("pieces/");
-  private final Path PIECE_BLACK_PATH = Paths.get("piece_black.png");
-  private final Path PIECE_WHITE_PATH = Paths.get("piece_white.png");
+  private final String PIECE_IMAGE_DIR = "/pieces";
+  private final String PIECE_BLACK = "/piece_black.png";
+  private final String PIECE_WHITE = "/piece_white.png";
 
-  public BoardUI() {
-    this.boardModel = new Board();
+  public BoardUI() { AbstractPlayer[] players = { new HumanPlayer(PieceColour.BLACK), new HumanPlayer(PieceColour.WHITE) };
+    this.boardModel = new Board(players);
     this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
 
@@ -49,7 +58,7 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    System.out.println("View: Added " + (PieceColour) arg +  " piece to " + o.getClass());
+    System.out.println("View: Added " + (PieceColour) arg + " piece to " + o.getClass());
     this.mainWindow.remove(boardPanel);
     boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel);
@@ -70,19 +79,22 @@ public class BoardUI implements Observer {
         final TilePanel tilePanel = new TilePanel(this, i);
         this.boardTiles.add(tilePanel);
 
-        if (i % 8 == 0 && i != 0)
+        if (i % 8 == 0 && i != 0) {
           row++;
+        }
 
         if (row % 2 == 0) {
-          if (i % 2 == 0)
+          if (i % 2 == 0) {
             tilePanel.setBackground(Color.decode("#2ecc71"));
-          else
+          } else {
             tilePanel.setBackground(Color.decode("#27ae60"));
+          }
         } else {
-          if (i % 2 == 0)
+          if (i % 2 == 0) {
             tilePanel.setBackground(Color.decode("#27ae60"));
-          else
+          } else {
             tilePanel.setBackground(Color.decode("#2ecc71"));
+          }
         }
 
         add(tilePanel);
@@ -107,7 +119,7 @@ public class BoardUI implements Observer {
       this.addMouseListener(new MouseListener() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          if (boardModel.addPiece(PieceColour.BLACK, tileId)) {
+          if (boardModel.addPiece(tileId)) {
             System.out.println("Added piece to tile: " + tileId);
           } else {
             System.out.println("Failed to add piece to tile.");
@@ -115,17 +127,20 @@ public class BoardUI implements Observer {
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {}
+        public void mousePressed(MouseEvent e) {
+        }
 
         @Override
         public void mouseReleased(MouseEvent e) {
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {
+        }
 
         @Override
-        public void mouseExited(MouseEvent e) {}
+        public void mouseExited(MouseEvent e) {
+        }
       });
     }
 
@@ -133,10 +148,9 @@ public class BoardUI implements Observer {
       this.removeAll();
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        Path iPath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK_PATH : PIECE_WHITE_PATH;
+        String imagePath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK : PIECE_WHITE;
 
-        InputStream imageStream = this.getClass().getClassLoader()
-            .getResourceAsStream(PIECE_IMAGE_PATH.resolve(iPath).toString());
+        InputStream imageStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + imagePath);
         try {
           ImageIcon image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
               .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
