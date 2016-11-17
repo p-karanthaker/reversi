@@ -66,6 +66,44 @@ public class Board extends Observable {
   }
 
   /**
+   * Returns the number of black pieces currently on the board.
+   *
+   * @return numPieces the number of black pieces currently on the board
+   */
+  public int getBlackPieceCount() {
+    int numPieces = 0;
+    for (AbstractTile[] row : grid) {
+      for (AbstractTile t : row) {
+        if (!t.isVacant()) {
+          if (t.getPiece().getPieceColour() == PieceColour.BLACK) {
+            numPieces++;
+          }
+        }
+      }
+    }
+    return numPieces;
+  }
+
+  /**
+   * Returns the number of white pieces currently on the board.
+   *
+   * @return numPieces the number of white pieces currently on the board
+   */
+  public int getWhitePieceCount() {
+    int numPieces = 0;
+    for (AbstractTile[] row : grid) {
+      for (AbstractTile t : row) {
+        if (!t.isVacant()) {
+          if (t.getPiece().getPieceColour() == PieceColour.WHITE) {
+            numPieces++;
+          }
+        }
+      }
+    }
+    return numPieces;
+  }
+
+  /**
    * Returns the tile with the given tile id.
    *
    * @param tileId the id of the tile to return.
@@ -170,12 +208,13 @@ public class Board extends Observable {
     if (Move.makeMove(this, point.y, point.x)) {
       //place the piece on the grid
       this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
+      this.switchPlayer();
 
       //notify observer of the changes
       setChanged();
       notifyObservers(this.getCurrentPlayer().getPlayerColour());
 
-      this.switchPlayer();
+
       return true;
     }
 
