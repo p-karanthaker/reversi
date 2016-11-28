@@ -48,16 +48,16 @@ public class BoardUI implements Observer {
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
 
     this.scorePanel = new ScorePanel();
-    this.scorePanel.setLayout(new GridLayout(0,2));
+    this.scorePanel.setLayout(new GridLayout(0, 1));
     this.mainWindow.add(scorePanel, BorderLayout.EAST);
 
     this.currentTurnPanel = new CurrentTurnPanel();
     this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
 
     this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.mainWindow.setResizable(false);
+    this.mainWindow.setLocationRelativeTo(null);
     this.mainWindow.setVisible(true);
-
-
   }
 
   @Override
@@ -188,23 +188,41 @@ public class BoardUI implements Observer {
 
   private class ScorePanel extends JPanel {
 
-      JLabel p1ScoreField;
-      JLabel p2ScoreField;
+    JPanel p1;
+    JPanel p2;
+
+    JLabel p1ScoreField;
+    JLabel p2ScoreField;
 
     ScorePanel() {
-      super(new FlowLayout());
+      p1 = new JPanel(new BorderLayout());
+      p2 = new JPanel(new BorderLayout());
       JLabel p1ScoreLabel = new JLabel();
       JLabel p2ScoreLabel = new JLabel();
       p1ScoreField = new JLabel();
       p2ScoreField = new JLabel();
-      add(p1ScoreLabel);
-      add(p1ScoreField);
-      add(p2ScoreLabel);
-      add(p2ScoreField);
-      p1ScoreLabel.setText("Player 1: ");
-      p2ScoreLabel.setText("Player 2: ");
+      p1.add(p1ScoreLabel, BorderLayout.NORTH);
+      p1.add(p1ScoreField, BorderLayout.CENTER);
+      p2.add(p2ScoreLabel, BorderLayout.NORTH);
+      p2.add(p2ScoreField, BorderLayout.CENTER);
+      add(p1);
+      add(p2);
+      p1ScoreLabel.setText("Player 1");
+      p2ScoreLabel.setText("Player 2");
+      p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
       p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
       p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
+      p1ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+      p2ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+
+      p1.setBackground(Color.decode("#1d1d1d"));
+      p1ScoreLabel.setForeground(Color.decode("#ecf0f1"));
+      p1ScoreField.setForeground(Color.decode("#ecf0f1"));
+
+      p2.setBackground(Color.decode("#ecf0f1"));
+      p2ScoreLabel.setForeground(Color.decode("#1d1d1d"));
+      p2ScoreField.setForeground(Color.decode("#1d1d1d"));
     }
 
     private void updateScores() {
