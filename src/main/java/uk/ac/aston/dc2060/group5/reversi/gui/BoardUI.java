@@ -5,11 +5,7 @@ import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -20,12 +16,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 /**
  * Creates the view of the Reversi playing board.
@@ -37,6 +28,8 @@ public class BoardUI implements Observer {
   private JFrame mainWindow;
   private BoardPanel boardPanel;
   private Board boardModel;
+  private ScorePanel scorePanel;
+  private CurrentTurnPanel currentTurnPanel;
 
   private final String PIECE_IMAGE_DIR = "/pieces";
   private final String PIECE_BLACK = "/piece_black.png";
@@ -50,9 +43,20 @@ public class BoardUI implements Observer {
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
     this.mainWindow.setSize(new Dimension(640, 640));
+
     this.boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
+
+    this.scorePanel = new ScorePanel();
+    this.scorePanel.setLayout(new GridLayout(0, 1));
+    this.mainWindow.add(scorePanel, BorderLayout.EAST);
+
+    this.currentTurnPanel = new CurrentTurnPanel();
+    this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
+
     this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.mainWindow.setResizable(false);
+    this.mainWindow.setLocationRelativeTo(null);
     this.mainWindow.setVisible(true);
   }
 
@@ -65,6 +69,9 @@ public class BoardUI implements Observer {
     this.mainWindow.validate();
     this.mainWindow.repaint();
     System.out.println(boardModel);
+
+    this.currentTurnPanel.updatePlayer();
+      this.scorePanel.updateScores();
   }
 
   private class BoardPanel extends JPanel {
@@ -163,4 +170,64 @@ public class BoardUI implements Observer {
 
   }
 
+
+  private class CurrentTurnPanel extends JPanel {
+    JLabel currentTurnLabel;
+
+    CurrentTurnPanel() {
+      super(new FlowLayout());
+      this.currentTurnLabel = new JLabel();
+      add(currentTurnLabel);
+      currentTurnLabel.setText("Current player: " + boardModel.getCurrentPlayer().getPlayerColour());
+      }
+
+      private void updatePlayer() {
+        currentTurnLabel.setText("Current player: " + boardModel.getCurrentPlayer().getPlayerColour());
+      }
+    }
+
+  private class ScorePanel extends JPanel {
+
+    JPanel p1;
+    JPanel p2;
+
+    JLabel p1ScoreField;
+    JLabel p2ScoreField;
+
+    ScorePanel() {
+      p1 = new JPanel(new BorderLayout());
+      p2 = new JPanel(new BorderLayout());
+      JLabel p1ScoreLabel = new JLabel();
+      JLabel p2ScoreLabel = new JLabel();
+      p1ScoreField = new JLabel();
+      p2ScoreField = new JLabel();
+      p1.add(p1ScoreLabel, BorderLayout.NORTH);
+      p1.add(p1ScoreField, BorderLayout.CENTER);
+      p2.add(p2ScoreLabel, BorderLayout.NORTH);
+      p2.add(p2ScoreField, BorderLayout.CENTER);
+      add(p1);
+      add(p2);
+      p1ScoreLabel.setText("Player 1");
+      p2ScoreLabel.setText("Player 2");
+      p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
+      p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
+      p1ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+      p2ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+
+      p1.setBackground(Color.decode("#1d1d1d"));
+      p1ScoreLabel.setForeground(Color.decode("#ecf0f1"));
+      p1ScoreField.setForeground(Color.decode("#ecf0f1"));
+
+      p2.setBackground(Color.decode("#ecf0f1"));
+      p2ScoreLabel.setForeground(Color.decode("#1d1d1d"));
+      p2ScoreField.setForeground(Color.decode("#1d1d1d"));
+    }
+
+    private void updateScores() {
+        p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
+        p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
+    }
+  }
 }
