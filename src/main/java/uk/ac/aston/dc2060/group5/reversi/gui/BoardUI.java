@@ -6,6 +6,8 @@ import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -26,6 +28,7 @@ import javax.swing.*;
 public class BoardUI implements Observer {
 
   private JFrame mainWindow;
+  private JMenuBar menuBar = createMenuBar();
   private BoardPanel boardPanel;
   private Board boardModel;
   private ScorePanel scorePanel;
@@ -43,6 +46,7 @@ public class BoardUI implements Observer {
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
     this.mainWindow.setSize(new Dimension(640, 640));
+    this.mainWindow.setJMenuBar(menuBar);
 
     this.boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
@@ -171,6 +175,7 @@ public class BoardUI implements Observer {
   }
 
 
+
   private class CurrentTurnPanel extends JPanel {
     JLabel currentTurnLabel;
 
@@ -229,5 +234,40 @@ public class BoardUI implements Observer {
         p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
         p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
     }
+  }
+
+  private JMenuBar createMenuBar() {
+
+
+    JMenuBar menubar = new JMenuBar();
+
+    JMenu file = new JMenu("File");
+    file.setMnemonic(KeyEvent.VK_F);
+
+    JMenuItem backToMainMenuItem  = new JMenuItem("Main Menu");
+    backToMainMenuItem.setToolTipText("Go back to main menu");
+    backToMainMenuItem.addActionListener((ActionEvent event) -> {
+      try {
+        mainWindow.dispose();
+        new MainMenu();
+      }catch (IOException ignored){}
+
+    });
+
+    JMenuItem exitMenuItem = new JMenuItem("Exit");
+    exitMenuItem.setToolTipText("Exit application");
+    exitMenuItem.addActionListener((ActionEvent event) -> {
+      System.exit(0);
+    });
+
+
+
+    file.add(backToMainMenuItem);
+    file.add(exitMenuItem);
+
+    menubar.add(file);
+
+    return menubar;
+
   }
 }
