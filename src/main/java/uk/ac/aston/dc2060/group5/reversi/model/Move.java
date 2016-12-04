@@ -2,6 +2,7 @@ package uk.ac.aston.dc2060.group5.reversi.model;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +118,35 @@ public class Move {
     } else {
       potentialPiecesToFlip.clear();
     }
+  }
+
+  /**
+   * Checks if there is a valid move that can be made for a player
+   * @param pieceColour the current player colour so we know which player we are checking has valid moves
+   */
+  public static List<Point> allPossibleMoves(Board board, PieceColour pieceColour) {
+    Move.board = board;
+    // All validation is false unless proven true
+    boolean valid = false;
+
+    List<Point> potentialValidMoves = new ArrayList<>();
+
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        AbstractTile tile = board.getTile(row, col);
+
+        if (tile.isVacant()) {
+          for (Direction direction : Direction.values()) {
+            checkDirection(pieceColour, row, col, direction);
+            if (piecesToFlip.size() > 0) {
+              potentialValidMoves.add(new Point(col, row));
+              piecesToFlip.clear();
+            }
+          }
+        }
+      }
+    }
+    return potentialValidMoves;
   }
 
   /**
