@@ -11,4 +11,8 @@ public class HumanPlayer extends AbstractPlayer {
     super(playerColour);
   }
 
+  public void takeTurn() {
+
+  }
+
 }

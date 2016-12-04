@@ -11,4 +11,9 @@ public class CPUPlayer extends AbstractPlayer {
     super(playerColour);
   }
 
+
+  public void takeTurn() {
+
+  }
+
 }

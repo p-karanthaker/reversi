@@ -3,9 +3,14 @@ package uk.ac.aston.dc2060.group5.reversi.gui;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
-import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -18,7 +23,16 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 /**
  * Creates the view of the Reversi playing board.
@@ -38,7 +52,7 @@ public class BoardUI implements Observer {
   private final String PIECE_BLACK = "/piece_black.png";
   private final String PIECE_WHITE = "/piece_white.png";
 
-  public BoardUI() { AbstractPlayer[] players = { new HumanPlayer(PieceColour.BLACK), new HumanPlayer(PieceColour.WHITE) };
+  public BoardUI(AbstractPlayer[] players) {
     this.boardModel = new Board(players);
     this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
@@ -66,7 +80,6 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    System.out.println("View: Added " + (PieceColour) arg + " piece to " + o.getClass());
     this.mainWindow.remove(boardPanel);
     boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel);
@@ -76,6 +89,17 @@ public class BoardUI implements Observer {
 
     this.currentTurnPanel.updatePlayer();
       this.scorePanel.updateScores();
+
+    // Determine if the game is over.
+    if ((boolean) arg) {
+      // Determine winner
+      if (boardModel.getBlackPieceCount() > boardModel.getWhitePieceCount()) {
+        JOptionPane.showMessageDialog(mainWindow, "Black Wins!", "Game Over", JOptionPane.PLAIN_MESSAGE);
+      } else {
+        JOptionPane.showMessageDialog(mainWindow, "White Wins!", "Game Over", JOptionPane.PLAIN_MESSAGE);
+      }
+
+    }
   }
 
   private class BoardPanel extends JPanel {
@@ -193,11 +217,11 @@ public class BoardUI implements Observer {
 
   private class ScorePanel extends JPanel {
 
-    JPanel p1;
-    JPanel p2;
+    public JPanel p1;
+    public JPanel p2;
 
-    JLabel p1ScoreField;
-    JLabel p2ScoreField;
+    public JLabel p1ScoreField;
+    public JLabel p2ScoreField;
 
     ScorePanel() {
       p1 = new JPanel(new BorderLayout());
@@ -241,8 +265,11 @@ public class BoardUI implements Observer {
 
     JMenuBar menubar = new JMenuBar();
 
-    JMenu file = new JMenu("File");
-    file.setMnemonic(KeyEvent.VK_F);
+    JMenu menu = new JMenu("Menu");
+    JMenu help = new JMenu("Help");
+
+    menu.setMnemonic(KeyEvent.VK_M);
+    help.setMnemonic(KeyEvent.VK_H);
 
     JMenuItem backToMainMenuItem  = new JMenuItem("Main Menu");
     backToMainMenuItem.setToolTipText("Go back to main menu");
@@ -260,12 +287,18 @@ public class BoardUI implements Observer {
       System.exit(0);
     });
 
+    JMenuItem rulesMenuItem = new JMenuItem("Rules");
+    rulesMenuItem.setToolTipText("Learn the rules of Reversi");
+    rulesMenuItem.addActionListener((ActionEvent event) -> {
+      new RulesUI();
+    });
 
+    menu.add(backToMainMenuItem);
+    menu.add(exitMenuItem);
+    help.add(rulesMenuItem);
 
-    file.add(backToMainMenuItem);
-    file.add(exitMenuItem);
-
-    menubar.add(file);
+    menubar.add(menu);
+    menubar.add(help);
 
     return menubar;
 

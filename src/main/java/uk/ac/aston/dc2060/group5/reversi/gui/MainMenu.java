@@ -1,18 +1,27 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
-import javax.swing.*;
-import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
-import java.awt.*;
-import java.awt.Button;
+import uk.ac.aston.dc2060.group5.reversi.model.Piece;
+import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
-
 import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
 /**
  * Created by Maryam on 22/11/2016.
@@ -74,7 +83,17 @@ public class MainMenu extends JFrame{
         option1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BoardUI();
+                AbstractPlayer[] players = { new HumanPlayer(Piece.PieceColour.BLACK), new HumanPlayer(Piece.PieceColour.WHITE) };
+                new BoardUI(players);
+                frame.dispose();
+            }
+        });
+
+        option2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AbstractPlayer[] players = { new HumanPlayer(Piece.PieceColour.BLACK), new CPUPlayer(Piece.PieceColour.WHITE) };
+                new BoardUI(players);
                 frame.dispose();
             }
         });

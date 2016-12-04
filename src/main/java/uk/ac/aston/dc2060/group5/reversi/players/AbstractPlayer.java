@@ -17,4 +17,6 @@ public abstract class AbstractPlayer {
     return this.playerColour;
   }
 
+  public abstract void takeTurn();
+
 }

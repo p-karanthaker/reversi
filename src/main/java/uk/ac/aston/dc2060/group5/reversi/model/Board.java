@@ -39,6 +39,8 @@ public class Board extends Observable {
    */
   private AbstractPlayer[] players;
 
+  public static boolean gameOver = false;
+
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
    *
@@ -110,7 +112,7 @@ public class Board extends Observable {
    * @return return the tile with the given tile id.
    */
   public AbstractTile getTile(final int tileId) {
-    final Point point = this.translateIndexToPoint(tileId);
+    final Point point = translateIndexToPoint(tileId);
     return this.grid[point.y][point.x];
   }
 
@@ -134,7 +136,7 @@ public class Board extends Observable {
    */
   public static Point translateIndexToPoint(final int tileId) {
     // Translate tileId into a coordinate for 8x8 array.
-    int row = (int) (tileId / 8);
+    int row = tileId / 8;
     int col = tileId % 8;
     return new Point(col, row);
   }
@@ -163,7 +165,7 @@ public class Board extends Observable {
   private void boardSetup() {
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
-        int coordinate = this.translatePointToIndex(new Point(col, row));
+        int coordinate = translatePointToIndex(new Point(col, row));
         if (row == col && (row == 3 || row == 4)) {
           this.grid[row][col] = AbstractTile.createTile(coordinate, this.whitePieces.pop());
         } else if ((row == 3 || row == 4) && (col == 3 || col == 4)) {
@@ -208,11 +210,21 @@ public class Board extends Observable {
     if (Move.makeMove(this, point.y, point.x)) {
       //place the piece on the grid
       this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
+
       this.switchPlayer();
+
+      // Check if the new player can make a legal move, and pass back turn if they can't
+      if (Move.allPossibleMoves(this, getCurrentPlayer().getPlayerColour()).size() == 0) {
+        this.switchPlayer();
+        if (Move.allPossibleMoves(this, getCurrentPlayer().getPlayerColour()).size() == 0) {
+          // End game.
+          gameOver = true;
+        }
+      }
 
       //notify observer of the changes
       setChanged();
-      notifyObservers(this.getCurrentPlayer().getPlayerColour());
+      notifyObservers(gameOver);
 
 
       return true;
