@@ -14,7 +14,6 @@ public class Move {
 
   /** List of tiles which have pieces to be flipped. **/
   private static List<AbstractTile> piecesToFlip = new ArrayList<AbstractTile>();
-  private static List<Point> validMoves = new ArrayList<>();
 
   /** The playing board. **/
   private static Board board;
@@ -125,8 +124,8 @@ public class Move {
    * Checks if there is a valid move that can be made for a player
    * @param pieceColour the current player colour so we know which player we are checking has valid moves
    */
-  private static void allPossibleMoves(Board board, PieceColour pieceColour) {
-
+  public static List<Point> allPossibleMoves(Board board, PieceColour pieceColour) {
+    Move.board = board;
     // All validation is false unless proven true
     boolean valid = false;
 
@@ -135,25 +134,19 @@ public class Move {
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
         AbstractTile tile = board.getTile(row, col);
+
         if (tile.isVacant()) {
           for (Direction direction : Direction.values()) {
             checkDirection(pieceColour, row, col, direction);
             if (piecesToFlip.size() > 0) {
               potentialValidMoves.add(new Point(col, row));
+              piecesToFlip.clear();
             }
           }
         }
       }
     }
-    if(potentialValidMoves.size() > 0) {
-      valid = true;
-    }
-
-    if(valid) {
-      validMoves.addAll(potentialValidMoves);
-    } else {
-      validMoves.clear();
-    }
+    return potentialValidMoves;
   }
 
   /**
