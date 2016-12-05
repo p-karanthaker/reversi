@@ -70,6 +70,7 @@ public class MainMenu extends JFrame{
         //Menu options
         JButton option1 = new JButton("Player vs Player");
         JButton option2 = new JButton("Player vs Al");
+        JButton option3 = new JButton("Instructions");
         JButton exit = new JButton("Exit");
 
 
@@ -98,6 +99,13 @@ public class MainMenu extends JFrame{
             }
         });
 
+        option3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new RulesUI();
+            }
+        });
+
         // Set panel menu options
         JPanel panel2 = new JPanel();
 
@@ -110,6 +118,7 @@ public class MainMenu extends JFrame{
         panel2.setOpaque(false);
         panel2.add(option1);
         panel2.add(option2);
+        panel2.add(option3);
         panel2.add(exit);
 
         JLayeredPane master = new JLayeredPane();
