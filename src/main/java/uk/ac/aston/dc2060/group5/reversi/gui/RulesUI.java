@@ -37,7 +37,7 @@ public class RulesUI extends JFrame {
     frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
     frame.add(createPanes(), BorderLayout.CENTER);
-    frame.setResizable(false);
+    frame.setResizable(true);
     frame.pack();
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
