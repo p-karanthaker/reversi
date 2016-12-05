@@ -17,13 +17,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 /**
  * Created by Karan on 04/12/2016.
@@ -92,17 +86,20 @@ public class RulesUI extends JFrame {
     textArea.setLineWrap(true);
     textArea.setEditable(false);
 
+    JScrollPane scroll = new JScrollPane (textArea,
+        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
+    panel.add(scroll);
+    
     JLabel image = new JLabel(imageIcon);
 
     if (imageIcon != null) {
       panel.setLayout(new GridLayout(1, 2));
-      panel.add(textArea);
       panel.add(image);
     } else {
       panel.setLayout(new GridLayout(1, 1));
-      panel.add(textArea);
     }
+
     return panel;
   }
 

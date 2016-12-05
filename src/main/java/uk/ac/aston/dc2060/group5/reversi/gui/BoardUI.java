@@ -1,16 +1,12 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
+import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -21,18 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 /**
  * Creates the view of the Reversi playing board.
@@ -156,6 +144,20 @@ public class BoardUI implements Observer {
         public void mouseClicked(MouseEvent e) {
           if (boardModel.addPiece(tileId)) {
             System.out.println("Added piece to tile: " + tileId);
+
+            // Let AI take a turn if the game is against a CPUPlayer
+            if (boardModel.getCurrentPlayer() instanceof CPUPlayer) {
+              // Pick random valid move
+              List<Point> moves = Move.allPossibleMoves(boardModel, boardModel.getCurrentPlayer().getPlayerColour());
+              int upperBound = moves.size();
+              Random random = new Random();
+              int index = random.nextInt(upperBound);
+
+              Point moveToMake = moves.get(index);
+
+              boardModel.addPiece(boardModel.translatePointToIndex(moveToMake));
+            }
+
           } else {
             System.out.println("Failed to add piece to tile.");
           }
