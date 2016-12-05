@@ -40,6 +40,12 @@ public class BoardUI implements Observer {
   private final String PIECE_BLACK = "/piece_black.png";
   private final String PIECE_WHITE = "/piece_white.png";
 
+  // Allows us to create a suitable size window for any screen resolution.
+  private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+
+  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
+  private final int GAME_WIDTH = SCREEN_SIZE.height * 4/5;
+
   public BoardUI(AbstractPlayer[] players) {
     this.boardModel = new Board(players);
     this.boardModel.addObserver(this);
@@ -47,7 +53,7 @@ public class BoardUI implements Observer {
 
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
-    this.mainWindow.setSize(new Dimension(640, 640));
+    this.mainWindow.setSize(new Dimension(GAME_HEIGHT, GAME_WIDTH));
     this.mainWindow.setJMenuBar(menuBar);
 
     this.boardPanel = new BoardPanel();
@@ -238,7 +244,7 @@ public class BoardUI implements Observer {
       p2.add(p2ScoreField, BorderLayout.CENTER);
       add(p1);
       add(p2);
-      p1ScoreLabel.setText("Player 1");
+      p1ScoreLabel.setText("Player 1       ");
       p2ScoreLabel.setText("Player 2");
       p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
       p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
