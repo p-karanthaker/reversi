@@ -46,7 +46,10 @@ public class BoardUI implements Observer {
   private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
   private final int GAME_WIDTH = SCREEN_SIZE.height * 4/5;
 
+  private AbstractPlayer[] players;
+
   public BoardUI(AbstractPlayer[] players) {
+    this.players = players;
     this.boardModel = new Board(players);
     this.boardModel.addObserver(this);
     System.out.println(this.boardModel.toString());
@@ -86,11 +89,49 @@ public class BoardUI implements Observer {
 
     // Determine if the game is over.
     if ((boolean) arg) {
+      Object[] options = { "Play Again?", "Main Menu", "Exit" };
       // Determine winner
+      int optionPicked = 0;
       if (boardModel.getBlackPieceCount() > boardModel.getWhitePieceCount()) {
-        JOptionPane.showMessageDialog(mainWindow, "Black Wins!", "Game Over", JOptionPane.PLAIN_MESSAGE);
+        optionPicked = JOptionPane.showOptionDialog(mainWindow,
+            "Black Wins!",
+            "Game Over",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[1]);
       } else {
-        JOptionPane.showMessageDialog(mainWindow, "White Wins!", "Game Over", JOptionPane.PLAIN_MESSAGE);
+        optionPicked = JOptionPane.showOptionDialog(mainWindow,
+            "White Wins!",
+            "Game Over",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            options,
+            options[1]);
+      }
+
+      switch (optionPicked) {
+        // Play Again
+        case 0:
+          this.mainWindow.dispose();
+          new BoardUI(this.players);
+          break;
+        // Exit
+        case 2:
+          System.exit(0);
+          break;
+        // Main Menu
+        case 1:
+        default:
+          this.mainWindow.dispose();
+          try {
+            new MainMenu();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+          break;
       }
 
     }
@@ -160,7 +201,6 @@ public class BoardUI implements Observer {
               int index = random.nextInt(upperBound);
 
               Point moveToMake = moves.get(index);
-
               boardModel.addPiece(boardModel.translatePointToIndex(moveToMake));
             }
 

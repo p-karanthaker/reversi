@@ -2,6 +2,7 @@ package uk.ac.aston.dc2060.group5.reversi.model;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
+import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 
 import java.awt.Point;
 import java.util.Observable;
@@ -39,7 +40,7 @@ public class Board extends Observable {
    */
   private AbstractPlayer[] players;
 
-  public static boolean gameOver = false;
+  public boolean gameOver = false;
 
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
