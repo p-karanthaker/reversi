@@ -1,12 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
-import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
-import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
-import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,19 +12,15 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -50,7 +43,7 @@ public class BoardUI implements Observer {
 
   private AbstractGame game;
 
-  private JFrame mainWindow;
+  public JFrame mainWindow;
   private JMenuBar menuBar = createMenuBar();
   private BoardPanel boardPanel;
   private ScorePanel scorePanel;
@@ -94,6 +87,65 @@ public class BoardUI implements Observer {
     this.mainWindow.setVisible(true);
   }
 
+  public void endGamePopup() {
+    Object[] options = { "Play Again?", "Main Menu", "Exit" };
+    // Determine winner
+    int optionPicked = 0;
+    if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
+      optionPicked = JOptionPane.showOptionDialog(mainWindow,
+          "Black Wins!",
+          "Game Over",
+          JOptionPane.YES_NO_CANCEL_OPTION,
+          JOptionPane.PLAIN_MESSAGE,
+          null,
+          options,
+          options[1]);
+    } else if (this.game.getBoard().getPieceCount(PieceColour.WHITE) > this.game.getBoard().getPieceCount(PieceColour.BLACK)) {
+      optionPicked = JOptionPane.showOptionDialog(mainWindow,
+          "White Wins!",
+          "Game Over",
+          JOptionPane.YES_NO_CANCEL_OPTION,
+          JOptionPane.PLAIN_MESSAGE,
+          null,
+          options,
+          options[1]);
+    } else {
+      optionPicked = JOptionPane.showOptionDialog(mainWindow,
+          "The game was a tie!",
+          "Game Over",
+          JOptionPane.YES_NO_CANCEL_OPTION,
+          JOptionPane.PLAIN_MESSAGE,
+          null,
+          options,
+          options[1]);
+    }
+
+    switch (optionPicked) {
+      // Play Again
+      case 0:
+        // TODO
+        break;
+      // Exit
+      case 2:
+        System.exit(0);
+        break;
+      // Main Menu
+      case 1:
+      default:
+        this.mainWindow.dispose();
+        try {
+          new MainMenu();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        break;
+    }
+  }
+
+  public BoardPanel getBoardPanel() {
+    return this.boardPanel;
+  }
+
   @Override
   public void update(Observable o, Object arg) {
     this.mainWindow.remove(boardPanel);
@@ -105,58 +157,9 @@ public class BoardUI implements Observer {
 
     this.currentTurnPanel.updatePlayer();
       this.scorePanel.updateScores();
-
-    // Determine if the game is over.
-    if ((boolean) arg) {
-      Object[] options = { "Play Again?", "Main Menu", "Exit" };
-      // Determine winner
-      int optionPicked = 0;
-      if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
-        optionPicked = JOptionPane.showOptionDialog(mainWindow,
-            "Black Wins!",
-            "Game Over",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            options,
-            options[1]);
-      } else {
-        optionPicked = JOptionPane.showOptionDialog(mainWindow,
-            "White Wins!",
-            "Game Over",
-            JOptionPane.YES_NO_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            options,
-            options[1]);
-      }
-
-      switch (optionPicked) {
-        // Play Again
-        case 0:
-          this.mainWindow.dispose();
-          new BoardUI(new ClassicGame(this.game.getGameType()));
-          break;
-        // Exit
-        case 2:
-          System.exit(0);
-          break;
-        // Main Menu
-        case 1:
-        default:
-          this.mainWindow.dispose();
-          try {
-            new MainMenu();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          break;
-      }
-
-    }
   }
 
-  private class BoardPanel extends JPanel {
+  public class BoardPanel extends JPanel {
 
     final List<TilePanel> boardTiles;
 
@@ -193,9 +196,13 @@ public class BoardUI implements Observer {
       this.setBackground(Color.decode("#95a5a6"));
       this.validate();
     }
+
+    public List<TilePanel> getBoardTiles() {
+      return this.boardTiles;
+    }
   }
 
-  private class TilePanel extends JPanel {
+  public class TilePanel extends JPanel {
 
     private final BoardPanel boardPanel;
     private final int tileId;
@@ -205,45 +212,10 @@ public class BoardUI implements Observer {
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
       this.drawTileIcon(game.getBoard());
-      this.addMouseListener(new MouseListener() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (game.playerTurn(tileId)) {
-            System.out.println("Added piece to tile: " + tileId);
+    }
 
-            // Let AI take a turn if the game is against a CPUPlayer
-            if (game.getCurrentPlayer() instanceof CPUPlayer) {
-              // Pick random valid move
-              List<Point> moves = Move.allPossibleMoves(game.getBoard(), game.getCurrentPlayer().getPlayerColour());
-              int upperBound = moves.size();
-              Random random = new Random();
-              int index = random.nextInt(upperBound);
-
-              Point moveToMake = moves.get(index);
-              game.playerTurn(Board.translatePointToIndex(moveToMake));
-            }
-
-          } else {
-            System.out.println("Failed to add piece to tile.");
-          }
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-      });
+    public int getTileId() {
+      return this.tileId;
     }
 
     private void drawTileIcon(Board board) {
@@ -338,13 +310,14 @@ public class BoardUI implements Observer {
     menu.setMnemonic(KeyEvent.VK_M);
     help.setMnemonic(KeyEvent.VK_H);
 
-    JMenuItem backToMainMenuItem  = new JMenuItem("Main Menu");
+    JMenuItem backToMainMenuItem = new JMenuItem("Main Menu");
     backToMainMenuItem.setToolTipText("Go back to main menu");
     backToMainMenuItem.addActionListener((ActionEvent event) -> {
       try {
         mainWindow.dispose();
         new MainMenu();
-      }catch (IOException ignored){}
+      } catch (IOException ignored) {
+      }
 
     });
 

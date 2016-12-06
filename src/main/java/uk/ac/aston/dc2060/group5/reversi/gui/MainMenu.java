@@ -1,5 +1,7 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
+import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
@@ -82,15 +84,17 @@ public class MainMenu extends JFrame{
         option1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BoardUI(new ClassicGame(GameType.PVP));
-                frame.dispose();
+              AbstractGame game = new ClassicGame(GameType.PVP);
+              new ReversiEngine(game, new BoardUI(game));
+              frame.dispose();
             }
         });
 
         option2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BoardUI(new ClassicGame(GameType.PVC));
+              AbstractGame game = new ClassicGame(GameType.PVC);
+              new ReversiEngine(game, new BoardUI(game));
                 frame.dispose();
             }
         });

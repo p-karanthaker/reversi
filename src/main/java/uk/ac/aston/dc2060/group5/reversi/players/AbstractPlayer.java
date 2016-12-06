@@ -1,6 +1,7 @@
 package uk.ac.aston.dc2060.group5.reversi.players;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 
 /**
  * Created by Sam on 09/10/2016.
@@ -17,6 +18,6 @@ public abstract class AbstractPlayer {
     return this.playerColour;
   }
 
-  public abstract void takeTurn();
+  public abstract boolean takeTurn(AbstractGame game, int coordinate);
 
 }

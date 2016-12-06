@@ -67,7 +67,6 @@ public class Move {
    */
   private static void checkDirection(PieceColour playerColour, int row, int col,
                                      final Direction direction) {
-    System.out.println("Checking direction: " + direction);
 
     // List of pieces which can potentially be flipped.
     List<AbstractTile> potentialPiecesToFlip = new ArrayList<AbstractTile>();

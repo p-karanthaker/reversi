@@ -13,18 +13,18 @@ import java.util.Observable;
  */
 public abstract class AbstractGame extends Observable {
 
+  private GameState gameState;
   protected Board playingBoard;
   private AbstractPlayer[] players;
   protected GameType gameType;
   private int currentPlayer;
-
-  protected boolean gameOver = false;
 
   public AbstractGame(GameType gameType) {
     this.players = new AbstractPlayer[2];
     this.gameType = gameType;
     this.playingBoard = new Board();
     this.currentPlayer = 0;
+    this.gameState = GameState.IN_PROGRESS;
 
     if (this.gameType.equals(GameType.PVP)) {
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
@@ -44,7 +44,7 @@ public abstract class AbstractGame extends Observable {
   /**
    * Switches the current player.
    */
-  protected void switchPlayer() {
+  public void switchPlayer() {
     this.currentPlayer = this.currentPlayer == 0 ? 1 : 0;
   }
 
@@ -64,10 +64,25 @@ public abstract class AbstractGame extends Observable {
     return this.gameType;
   }
 
+  public GameState getGameState() {
+    return this.gameState;
+  }
+
+  public void setGameState(GameState newState) {
+    this.gameState = newState;
+  }
+
   public boolean isGameOver() {
-    return this.gameOver;
+    if (this.gameState.equals(GameState.GAVE_OVER)) {
+      return true;
+    }
+    return false;
   }
 
   public abstract boolean playerTurn(int coordinate);
+
+  public enum GameState {
+    IN_PROGRESS, GAVE_OVER;
+  }
 
 }
