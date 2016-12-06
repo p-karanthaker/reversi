@@ -1,6 +1,7 @@
 package uk.ac.aston.dc2060.group5.reversi.model;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -23,13 +24,13 @@ public class Move {
    * direction to see if the move is valid at all. If the move is valid, then the
    * {@link #piecesToFlip} array will have items in it and the pieces will be flipped over.
    *
-   * @param board the playing board.
+   * @param game the current game.
    * @param row the row of the piece we want to place.
    * @param col the column of the piece we want to place.
    * @return true if the move has been made, false if not.
    */
-  public static boolean makeMove(Board board, int row, int col) {
-    Move.board = board;
+  public static boolean makeMove(AbstractGame game, int row, int col) {
+    Move.board = game.getBoard();
     // boolean variable to return at end of method, set to true if move is valid
     boolean moveMade = false;
 
@@ -42,7 +43,7 @@ public class Move {
     }
 
     for (Direction direction : Direction.values()) {
-      checkDirection(board.getCurrentPlayer().getPlayerColour(), row, col, direction);
+      checkDirection(game.getCurrentPlayer().getPlayerColour(), row, col, direction);
     }
 
     if (piecesToFlip.size() > 0) {

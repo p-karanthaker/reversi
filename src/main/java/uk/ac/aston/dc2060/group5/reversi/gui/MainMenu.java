@@ -1,9 +1,7 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
-import uk.ac.aston.dc2060.group5.reversi.model.Piece;
-import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
-import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
-import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -84,8 +82,7 @@ public class MainMenu extends JFrame{
         option1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AbstractPlayer[] players = { new HumanPlayer(Piece.PieceColour.BLACK), new HumanPlayer(Piece.PieceColour.WHITE) };
-                new BoardUI(players);
+                new BoardUI(new ClassicGame(GameType.PVP));
                 frame.dispose();
             }
         });
@@ -93,8 +90,7 @@ public class MainMenu extends JFrame{
         option2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AbstractPlayer[] players = { new HumanPlayer(Piece.PieceColour.BLACK), new CPUPlayer(Piece.PieceColour.WHITE) };
-                new BoardUI(players);
+                new BoardUI(new ClassicGame(GameType.PVC));
                 frame.dispose();
             }
         });

@@ -5,8 +5,18 @@ import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -20,7 +30,16 @@ import java.util.Observer;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 /**
  * Creates the view of the Reversi playing board.
@@ -29,10 +48,11 @@ import javax.swing.*;
  */
 public class BoardUI implements Observer {
 
+  private AbstractGame game;
+
   private JFrame mainWindow;
   private JMenuBar menuBar = createMenuBar();
   private BoardPanel boardPanel;
-  private Board boardModel;
   private ScorePanel scorePanel;
   private CurrentTurnPanel currentTurnPanel;
 
@@ -48,11 +68,10 @@ public class BoardUI implements Observer {
 
   private AbstractPlayer[] players;
 
-  public BoardUI(AbstractPlayer[] players) {
-    this.players = players;
-    this.boardModel = new Board(players);
-    this.boardModel.addObserver(this);
-    System.out.println(this.boardModel.toString());
+  public BoardUI(AbstractGame game) {
+    this.game = game;
+    this.game.addObserver(this);
+    System.out.println(this.game.getBoard().toString());
 
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
@@ -82,7 +101,7 @@ public class BoardUI implements Observer {
     this.mainWindow.add(boardPanel);
     this.mainWindow.validate();
     this.mainWindow.repaint();
-    System.out.println(boardModel);
+    System.out.println(this.game.getBoard());
 
     this.currentTurnPanel.updatePlayer();
       this.scorePanel.updateScores();
@@ -92,7 +111,7 @@ public class BoardUI implements Observer {
       Object[] options = { "Play Again?", "Main Menu", "Exit" };
       // Determine winner
       int optionPicked = 0;
-      if (boardModel.getBlackPieceCount() > boardModel.getWhitePieceCount()) {
+      if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
         optionPicked = JOptionPane.showOptionDialog(mainWindow,
             "Black Wins!",
             "Game Over",
@@ -116,7 +135,7 @@ public class BoardUI implements Observer {
         // Play Again
         case 0:
           this.mainWindow.dispose();
-          new BoardUI(this.players);
+          new BoardUI(new ClassicGame(this.game.getGameType()));
           break;
         // Exit
         case 2:
@@ -185,23 +204,23 @@ public class BoardUI implements Observer {
       this.boardPanel = boardPanel;
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
-      this.drawTileIcon(boardModel);
+      this.drawTileIcon(game.getBoard());
       this.addMouseListener(new MouseListener() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          if (boardModel.addPiece(tileId)) {
+          if (game.playerTurn(tileId)) {
             System.out.println("Added piece to tile: " + tileId);
 
             // Let AI take a turn if the game is against a CPUPlayer
-            if (boardModel.getCurrentPlayer() instanceof CPUPlayer) {
+            if (game.getCurrentPlayer() instanceof CPUPlayer) {
               // Pick random valid move
-              List<Point> moves = Move.allPossibleMoves(boardModel, boardModel.getCurrentPlayer().getPlayerColour());
+              List<Point> moves = Move.allPossibleMoves(game.getBoard(), game.getCurrentPlayer().getPlayerColour());
               int upperBound = moves.size();
               Random random = new Random();
               int index = random.nextInt(upperBound);
 
               Point moveToMake = moves.get(index);
-              boardModel.addPiece(boardModel.translatePointToIndex(moveToMake));
+              game.playerTurn(Board.translatePointToIndex(moveToMake));
             }
 
           } else {
@@ -255,11 +274,11 @@ public class BoardUI implements Observer {
       super(new FlowLayout());
       this.currentTurnLabel = new JLabel();
       add(currentTurnLabel);
-      currentTurnLabel.setText("Current player: " + boardModel.getCurrentPlayer().getPlayerColour());
+      currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
       }
 
       private void updatePlayer() {
-        currentTurnLabel.setText("Current player: " + boardModel.getCurrentPlayer().getPlayerColour());
+        currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
       }
     }
 
@@ -288,8 +307,8 @@ public class BoardUI implements Observer {
       p2ScoreLabel.setText("Player 2");
       p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
       p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-      p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
-      p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
+      p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+      p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
       p1ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
       p2ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
 
@@ -303,8 +322,8 @@ public class BoardUI implements Observer {
     }
 
     private void updateScores() {
-        p1ScoreField.setText(Integer.toString(boardModel.getBlackPieceCount()));
-        p2ScoreField.setText(Integer.toString(boardModel.getWhitePieceCount()));
+        p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+        p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
     }
   }
 
