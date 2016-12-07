@@ -32,6 +32,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 /**
@@ -85,6 +86,19 @@ public class BoardUI implements Observer {
     this.mainWindow.setResizable(false);
     this.mainWindow.setLocationRelativeTo(null);
     this.mainWindow.setVisible(true);
+  }
+
+  public void refreshUI() {
+    // Update tiles
+    for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
+      tilePanel.drawTileIcon(this.game.getBoard());
+    }
+
+    // Update turn
+    this.currentTurnPanel.updatePlayer();
+
+    // Update scores
+    this.scorePanel.updateScores();
   }
 
   public void endGamePopup() {
@@ -148,15 +162,8 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    this.mainWindow.remove(boardPanel);
-    boardPanel = new BoardPanel();
-    this.mainWindow.add(boardPanel);
-    this.mainWindow.validate();
-    this.mainWindow.repaint();
+    refreshUI();
     System.out.println(this.game.getBoard());
-
-    this.currentTurnPanel.updatePlayer();
-      this.scorePanel.updateScores();
   }
 
   public class BoardPanel extends JPanel {
@@ -218,7 +225,7 @@ public class BoardUI implements Observer {
       return this.tileId;
     }
 
-    private void drawTileIcon(Board board) {
+    public void drawTileIcon(Board board) {
       this.removeAll();
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
