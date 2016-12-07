@@ -1,7 +1,6 @@
 package uk.ac.aston.dc2060.group5.reversi;
 
 import uk.ac.aston.dc2060.group5.reversi.gui.BoardUI;
-import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
@@ -45,6 +44,7 @@ public class ReversiEngine implements Runnable {
           protected String doInBackground() throws Exception {
             // Thinking delay for AI
             try {
+              TimeUnit.SECONDS.sleep(new Random().nextInt(2) + 1);
             } catch (InterruptedException e) {
               e.printStackTrace();
             }
