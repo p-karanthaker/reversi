@@ -29,8 +29,11 @@ public abstract class AbstractGame extends Observable {
     if (this.gameType.equals(GameType.PVP)) {
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
       this.players[1] = new HumanPlayer(Piece.PieceColour.WHITE);
-    } else {
+    } else if (this.gameType.equals(GameType.PVC)){
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
+      this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE);
+    } else if (this.gameType.equals(GameType.DEMO)) {
+      this.players[0] = new CPUPlayer(Piece.PieceColour.BLACK);
       this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE);
     }
 

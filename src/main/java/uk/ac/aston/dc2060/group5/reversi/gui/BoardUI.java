@@ -1,9 +1,12 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
+import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -136,7 +139,9 @@ public class BoardUI implements Observer {
     switch (optionPicked) {
       // Play Again
       case 0:
-        // TODO
+        this.mainWindow.dispose();
+        AbstractGame newGame = new ClassicGame(game.getGameType());
+        new ReversiEngine(newGame, new BoardUI(newGame));
         break;
       // Exit
       case 2:

@@ -37,7 +37,7 @@ public class ReversiEngine implements Runnable {
     if (this.game.getGameState().equals(AbstractGame.GameState.GAVE_OVER)) {
       this.gui.endGamePopup();
     } else {
-      if (this.game.getGameType().equals(GameType.PVC) && this.game.getCurrentPlayer() instanceof CPUPlayer) {
+      if (!this.game.getGameType().equals(GameType.PVP) && this.game.getCurrentPlayer() instanceof CPUPlayer) {
         // Execute logic from the GUI without blocking it.
         new SwingWorker<String, Void>() {
           @Override

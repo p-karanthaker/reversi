@@ -68,9 +68,10 @@ public class MainMenu extends JFrame{
         panel.add(background);
 
         //Menu options
-        JButton option1 = new JButton("Player vs Player");
-        JButton option2 = new JButton("Player vs Al");
-        JButton option3 = new JButton("Instructions");
+        JButton buttonPvP = new JButton("Player vs Player");
+        JButton buttonPvC = new JButton("Player vs Al");
+        JButton buttonDemo = new JButton("Demo");
+        JButton buttonInstructions = new JButton("Instructions");
         JButton exit = new JButton("Exit");
 
 
@@ -81,7 +82,7 @@ public class MainMenu extends JFrame{
             }
         });
 
-        option1.addActionListener(new ActionListener() {
+        buttonPvP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
               AbstractGame game = new ClassicGame(GameType.PVP);
@@ -90,7 +91,7 @@ public class MainMenu extends JFrame{
             }
         });
 
-        option2.addActionListener(new ActionListener() {
+        buttonPvC.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
               AbstractGame game = new ClassicGame(GameType.PVC);
@@ -99,7 +100,16 @@ public class MainMenu extends JFrame{
             }
         });
 
-        option3.addActionListener(new ActionListener() {
+        buttonDemo.addActionListener(new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            AbstractGame game = new ClassicGame(GameType.DEMO);
+            new ReversiEngine(game, new BoardUI(game));
+            frame.dispose();
+          }
+        });
+
+        buttonInstructions.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new RulesUI();
@@ -116,9 +126,10 @@ public class MainMenu extends JFrame{
         panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
 
         panel2.setOpaque(false);
-        panel2.add(option1);
-        panel2.add(option2);
-        panel2.add(option3);
+        panel2.add(buttonPvP);
+        panel2.add(buttonPvC);
+        panel2.add(buttonDemo);
+        panel2.add(buttonInstructions);
         panel2.add(exit);
 
         JLayeredPane master = new JLayeredPane();
