@@ -89,6 +89,7 @@ public class RulesUI extends JFrame {
     textArea.setText(text);
     textArea.setLineWrap(true);
     textArea.setEditable(false);
+    textArea.setWrapStyleWord(true);
 
     JScrollPane scroll = new JScrollPane (textArea,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
