@@ -1,17 +1,22 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
+import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
-import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,6 +29,10 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -34,40 +43,131 @@ import javax.swing.WindowConstants;
  */
 public class BoardUI implements Observer {
 
-  private JFrame mainWindow;
+  private AbstractGame game;
+
+  public JFrame mainWindow;
+  private JMenuBar menuBar = createMenuBar();
   private BoardPanel boardPanel;
-  private Board boardModel;
+  private ScorePanel scorePanel;
+  private CurrentTurnPanel currentTurnPanel;
 
   private final String PIECE_IMAGE_DIR = "/pieces";
   private final String PIECE_BLACK = "/piece_black.png";
   private final String PIECE_WHITE = "/piece_white.png";
 
-  public BoardUI() { AbstractPlayer[] players = { new HumanPlayer(PieceColour.BLACK), new HumanPlayer(PieceColour.WHITE) };
-    this.boardModel = new Board(players);
-    this.boardModel.addObserver(this);
-    System.out.println(this.boardModel.toString());
+  private ImageIcon imageBlack;
+  private ImageIcon imageWhite;
+
+  // Allows us to create a suitable size window for any screen resolution.
+  private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+
+  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
+  private final int GAME_WIDTH = SCREEN_SIZE.height * 4/5;
+
+  private AbstractPlayer[] players;
+
+  public BoardUI(AbstractGame game) {
+    InputStream imageBlackStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + PIECE_BLACK);
+    InputStream imageWhiteStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + PIECE_WHITE);
+    try {
+      this.imageBlack = new ImageIcon(new ImageIcon(ImageIO.read(imageBlackStream))
+          .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+      this.imageWhite = new ImageIcon(new ImageIcon(ImageIO.read(imageWhiteStream))
+          .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+
+    this.game = game;
+    this.game.addObserver(this);
+    System.out.println(this.game.getBoard().toString());
 
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
-    this.mainWindow.setSize(new Dimension(640, 640));
+    this.mainWindow.setSize(new Dimension(GAME_HEIGHT, GAME_WIDTH));
+    this.mainWindow.setJMenuBar(menuBar);
+
     this.boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
+
+    this.scorePanel = new ScorePanel();
+    this.scorePanel.setLayout(new GridLayout(0, 1));
+    this.mainWindow.add(scorePanel, BorderLayout.EAST);
+
+    this.currentTurnPanel = new CurrentTurnPanel();
+    this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
+
     this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.mainWindow.setResizable(false);
+    this.mainWindow.setLocationRelativeTo(null);
     this.mainWindow.setVisible(true);
+  }
+
+  public void endGamePopup() {
+    Object[] options = { "Play Again?", "Main Menu", "Exit" };
+    // Determine winner
+    int optionPicked = 0;
+    String popupMessageText = null;
+    if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
+      popupMessageText = "Black Wins!";
+    } else if (this.game.getBoard().getPieceCount(PieceColour.WHITE) > this.game.getBoard().getPieceCount(PieceColour.BLACK)) {
+      popupMessageText = "White Wins!";
+    } else {
+      popupMessageText = "The game was a tie!";
+    }
+
+    optionPicked = JOptionPane.showOptionDialog(mainWindow,
+        popupMessageText,
+        "Game Over",
+        JOptionPane.YES_NO_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE,
+        null,
+        options,
+        options[1]);
+
+    switch (optionPicked) {
+      // Play Again
+      case 0:
+        this.mainWindow.dispose();
+        AbstractGame newGame = new ClassicGame(game.getGameType());
+        new ReversiEngine(newGame, new BoardUI(newGame));
+        break;
+      // Exit
+      case 2:
+        System.exit(0);
+        break;
+      // Main Menu
+      case 1:
+      default:
+        this.mainWindow.dispose();
+        try {
+          new MainMenu();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        break;
+    }
+  }
+
+  public BoardPanel getBoardPanel() {
+    return this.boardPanel;
   }
 
   @Override
   public void update(Observable o, Object arg) {
-    System.out.println("View: Added " + (PieceColour) arg + " piece to " + o.getClass());
-    this.mainWindow.remove(boardPanel);
-    boardPanel = new BoardPanel();
-    this.mainWindow.add(boardPanel);
-    this.mainWindow.validate();
-    this.mainWindow.repaint();
-    System.out.println(boardModel);
+    // Update tiles
+    for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
+      tilePanel.drawTileIcon(this.game.getBoard());
+    }
+
+    // Update turn
+    this.currentTurnPanel.updatePlayer();
+
+    // Update scores
+    this.scorePanel.updateScores();
   }
 
-  private class BoardPanel extends JPanel {
+  public class BoardPanel extends JPanel {
 
     final List<TilePanel> boardTiles;
 
@@ -104,9 +204,13 @@ public class BoardUI implements Observer {
       this.setBackground(Color.decode("#95a5a6"));
       this.validate();
     }
+
+    public List<TilePanel> getBoardTiles() {
+      return this.boardTiles;
+    }
   }
 
-  private class TilePanel extends JPanel {
+  public class TilePanel extends JPanel {
 
     private final BoardPanel boardPanel;
     private final int tileId;
@@ -115,52 +219,129 @@ public class BoardUI implements Observer {
       this.boardPanel = boardPanel;
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
-      this.drawTileIcon(boardModel);
-      this.addMouseListener(new MouseListener() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (boardModel.addPiece(tileId)) {
-            System.out.println("Added piece to tile: " + tileId);
-          } else {
-            System.out.println("Failed to add piece to tile.");
-          }
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
-      });
+      this.drawTileIcon(game.getBoard());
     }
 
-    private void drawTileIcon(Board board) {
+    public int getTileId() {
+      return this.tileId;
+    }
+
+    public void drawTileIcon(Board board) {
       this.removeAll();
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        String imagePath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK : PIECE_WHITE;
+        ImageIcon image = pieceColour.equals(PieceColour.BLACK) ? imageBlack : imageWhite;
 
-        InputStream imageStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + imagePath);
-        try {
-          ImageIcon image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
-              .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-          this.add(new JLabel(image));
-        } catch (final IOException e) {
-          e.printStackTrace();
-        }
+        this.add(new JLabel(image));
       }
     }
 
   }
 
+
+
+  private class CurrentTurnPanel extends JPanel {
+    JLabel currentTurnLabel;
+
+    CurrentTurnPanel() {
+      super(new FlowLayout());
+      this.currentTurnLabel = new JLabel();
+      add(currentTurnLabel);
+      currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
+      }
+
+      private void updatePlayer() {
+        currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
+      }
+    }
+
+  private class ScorePanel extends JPanel {
+
+    public JPanel p1;
+    public JPanel p2;
+
+    public JLabel p1ScoreField;
+    public JLabel p2ScoreField;
+
+    ScorePanel() {
+      p1 = new JPanel(new BorderLayout());
+      p2 = new JPanel(new BorderLayout());
+      JLabel p1ScoreLabel = new JLabel();
+      JLabel p2ScoreLabel = new JLabel();
+      p1ScoreField = new JLabel();
+      p2ScoreField = new JLabel();
+      p1.add(p1ScoreLabel, BorderLayout.NORTH);
+      p1.add(p1ScoreField, BorderLayout.CENTER);
+      p2.add(p2ScoreLabel, BorderLayout.NORTH);
+      p2.add(p2ScoreField, BorderLayout.CENTER);
+      add(p1);
+      add(p2);
+      p1ScoreLabel.setText("Player 1       ");
+      p2ScoreLabel.setText("Player 2");
+      p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+      p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
+      p1ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+      p2ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+
+      p1.setBackground(Color.decode("#1d1d1d"));
+      p1ScoreLabel.setForeground(Color.decode("#ecf0f1"));
+      p1ScoreField.setForeground(Color.decode("#ecf0f1"));
+
+      p2.setBackground(Color.decode("#ecf0f1"));
+      p2ScoreLabel.setForeground(Color.decode("#1d1d1d"));
+      p2ScoreField.setForeground(Color.decode("#1d1d1d"));
+    }
+
+    private void updateScores() {
+        p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+        p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
+    }
+  }
+
+  private JMenuBar createMenuBar() {
+
+
+    JMenuBar menubar = new JMenuBar();
+
+    JMenu menu = new JMenu("Menu");
+    JMenu help = new JMenu("Help");
+
+    menu.setMnemonic(KeyEvent.VK_M);
+    help.setMnemonic(KeyEvent.VK_H);
+
+    JMenuItem backToMainMenuItem = new JMenuItem("Main Menu");
+    backToMainMenuItem.setToolTipText("Go back to main menu");
+    backToMainMenuItem.addActionListener((ActionEvent event) -> {
+      try {
+        mainWindow.dispose();
+        new MainMenu();
+      } catch (IOException ignored) {
+      }
+
+    });
+
+    JMenuItem exitMenuItem = new JMenuItem("Exit");
+    exitMenuItem.setToolTipText("Exit application");
+    exitMenuItem.addActionListener((ActionEvent event) -> {
+      System.exit(0);
+    });
+
+    JMenuItem rulesMenuItem = new JMenuItem("Rules");
+    rulesMenuItem.setToolTipText("Learn the rules of Reversi");
+    rulesMenuItem.addActionListener((ActionEvent event) -> {
+      new RulesUI();
+    });
+
+    menu.add(backToMainMenuItem);
+    menu.add(exitMenuItem);
+    help.add(rulesMenuItem);
+
+    menubar.add(menu);
+    menubar.add(help);
+
+    return menubar;
+
+  }
 }
