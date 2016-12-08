@@ -3,7 +3,7 @@
 
   <groupId>uk.ac.aston.dc2060.group5</groupId>
   <artifactId>reversi</artifactId>
-  <version>1.1</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>reversi</name>
@@ -19,7 +19,7 @@
   <scm>
     <developerConnection>scm:git:https://github.com/p-karanthaker/reversi</developerConnection>
     <url>https://github.com/p-karanthaker/reversi</url>
-    <tag>MVP</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>
