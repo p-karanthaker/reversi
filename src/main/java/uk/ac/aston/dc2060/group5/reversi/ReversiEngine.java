@@ -60,6 +60,7 @@ public class ReversiEngine implements Runnable {
   }
 
   public void afterMove() {
+    System.out.println(this.game.getBoard());
     updateListeners();
     run();
   }

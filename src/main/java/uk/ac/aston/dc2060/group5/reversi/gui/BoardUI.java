@@ -6,7 +6,6 @@ import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
-import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -56,6 +55,9 @@ public class BoardUI implements Observer {
   private final String PIECE_BLACK = "/piece_black.png";
   private final String PIECE_WHITE = "/piece_white.png";
 
+  private ImageIcon imageBlack;
+  private ImageIcon imageWhite;
+
   // Allows us to create a suitable size window for any screen resolution.
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -65,6 +67,17 @@ public class BoardUI implements Observer {
   private AbstractPlayer[] players;
 
   public BoardUI(AbstractGame game) {
+    InputStream imageBlackStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + PIECE_BLACK);
+    InputStream imageWhiteStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + PIECE_WHITE);
+    try {
+      this.imageBlack = new ImageIcon(new ImageIcon(ImageIO.read(imageBlackStream))
+          .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+      this.imageWhite = new ImageIcon(new ImageIcon(ImageIO.read(imageWhiteStream))
+          .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+
     this.game = game;
     this.game.addObserver(this);
     System.out.println(this.game.getBoard().toString());
@@ -90,51 +103,27 @@ public class BoardUI implements Observer {
     this.mainWindow.setVisible(true);
   }
 
-  public void refreshUI() {
-    // Update tiles
-    for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
-      tilePanel.drawTileIcon(this.game.getBoard());
-    }
-
-    // Update turn
-    this.currentTurnPanel.updatePlayer();
-
-    // Update scores
-    this.scorePanel.updateScores();
-  }
-
   public void endGamePopup() {
     Object[] options = { "Play Again?", "Main Menu", "Exit" };
     // Determine winner
     int optionPicked = 0;
+    String popupMessageText = null;
     if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
-      optionPicked = JOptionPane.showOptionDialog(mainWindow,
-          "Black Wins!",
-          "Game Over",
-          JOptionPane.YES_NO_CANCEL_OPTION,
-          JOptionPane.PLAIN_MESSAGE,
-          null,
-          options,
-          options[1]);
+      popupMessageText = "Black Wins!";
     } else if (this.game.getBoard().getPieceCount(PieceColour.WHITE) > this.game.getBoard().getPieceCount(PieceColour.BLACK)) {
-      optionPicked = JOptionPane.showOptionDialog(mainWindow,
-          "White Wins!",
-          "Game Over",
-          JOptionPane.YES_NO_CANCEL_OPTION,
-          JOptionPane.PLAIN_MESSAGE,
-          null,
-          options,
-          options[1]);
+      popupMessageText = "White Wins!";
     } else {
-      optionPicked = JOptionPane.showOptionDialog(mainWindow,
-          "The game was a tie!",
-          "Game Over",
-          JOptionPane.YES_NO_CANCEL_OPTION,
-          JOptionPane.PLAIN_MESSAGE,
-          null,
-          options,
-          options[1]);
+      popupMessageText = "The game was a tie!";
     }
+
+    optionPicked = JOptionPane.showOptionDialog(mainWindow,
+        popupMessageText,
+        "Game Over",
+        JOptionPane.YES_NO_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE,
+        null,
+        options,
+        options[1]);
 
     switch (optionPicked) {
       // Play Again
@@ -166,8 +155,16 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    refreshUI();
-    System.out.println(this.game.getBoard());
+    // Update tiles
+    for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
+      tilePanel.drawTileIcon(this.game.getBoard());
+    }
+
+    // Update turn
+    this.currentTurnPanel.updatePlayer();
+
+    // Update scores
+    this.scorePanel.updateScores();
   }
 
   public class BoardPanel extends JPanel {
@@ -233,16 +230,9 @@ public class BoardUI implements Observer {
       this.removeAll();
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        String imagePath = pieceColour.equals(PieceColour.BLACK) ? PIECE_BLACK : PIECE_WHITE;
+        ImageIcon image = pieceColour.equals(PieceColour.BLACK) ? imageBlack : imageWhite;
 
-        InputStream imageStream = this.getClass().getResourceAsStream(PIECE_IMAGE_DIR + imagePath);
-        try {
-          ImageIcon image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
-              .getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-          this.add(new JLabel(image));
-        } catch (final IOException e) {
-          e.printStackTrace();
-        }
+        this.add(new JLabel(image));
       }
     }
 
