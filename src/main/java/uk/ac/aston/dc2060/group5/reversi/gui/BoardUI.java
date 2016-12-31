@@ -13,8 +13,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -168,7 +171,7 @@ public class BoardUI implements Observer {
   public void update(Observable o, Object arg) {
     // Update tiles
     for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
-      tilePanel.drawTileIcon(this.game.getBoard());
+      tilePanel.repaint();
     }
 
     // Update turn
@@ -225,25 +228,39 @@ public class BoardUI implements Observer {
 
     private final BoardPanel boardPanel;
     private final int tileId;
+    private Board board;
 
     TilePanel(final BoardPanel boardPanel, final int tileId) {
       this.boardPanel = boardPanel;
       this.tileId = tileId;
       this.setLayout(new BorderLayout());
-      this.drawTileIcon(game.getBoard());
+      this.board = game.getBoard();
     }
 
     public int getTileId() {
       return this.tileId;
     }
 
-    public void drawTileIcon(Board board) {
-      this.removeAll();
+    protected void paintComponent(Graphics g) {
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        ImageIcon image = pieceColour.equals(PieceColour.BLACK) ? imageBlack : imageWhite;
+        int h = getHeight();
+        int w = getWidth();
 
-        this.add(new JLabel(image));
+        Graphics2D g2 = (Graphics2D) g;
+        super.paintComponent(g2);
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        if (pieceColour.equals(PieceColour.BLACK)) {
+          g2.setColor(Color.BLACK);
+        } else {
+          g2.setColor(Color.WHITE);
+        }
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+      } else {
+        super.paintComponent(g);
       }
     }
 
