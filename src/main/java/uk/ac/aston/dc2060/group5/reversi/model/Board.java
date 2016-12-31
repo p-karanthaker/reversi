@@ -1,10 +1,8 @@
 package uk.ac.aston.dc2060.group5.reversi.model;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
-import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 
 import java.awt.Point;
-import java.util.Observable;
 import java.util.Stack;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Stack;
  *
  * <p>Created by Karan Thaker</p>
  */
-public class Board extends Observable {
+public class Board {
 
   /**
    * An 8x8 2D array of every tile on the playing grid.
@@ -30,29 +28,10 @@ public class Board extends Observable {
   private Stack<Piece> blackPieces;
 
   /**
-   * The player who's turn it currently is.
-   */
-  private int currentPlayer;
-
-  /**
-   * Stores the players playing the game.
-   */
-  private AbstractPlayer[] players;
-
-  /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
    *
-   * @param players the 2 players who are playing reversi.
    */
-  public Board(AbstractPlayer[] players) {
-    if (players.length != 2) {
-      new IllegalStateException("Not enough players!");
-    } else if (players[0].getPlayerColour().equals(players[1].getPlayerColour())) {
-      new IllegalStateException("Players cannot be of same colour!");
-    }
-    this.players = players;
-    this.currentPlayer = 0;
-
+  public Board() {
     this.grid = new AbstractTile[8][8];
     this.whitePieces = new Stack<Piece>();
     this.blackPieces = new Stack<Piece>();
@@ -66,35 +45,16 @@ public class Board extends Observable {
   }
 
   /**
-   * Returns the number of black pieces currently on the board.
+   * Returns the number of specified colour pieces currently on the board.
    *
-   * @return numPieces the number of black pieces currently on the board
+   * @return numPieces the number of specified colour pieces currently on the board
    */
-  public int getBlackPieceCount() {
+  public int getPieceCount(PieceColour pieceColour) {
     int numPieces = 0;
     for (AbstractTile[] row : grid) {
       for (AbstractTile t : row) {
         if (!t.isVacant()) {
-          if (t.getPiece().getPieceColour() == PieceColour.BLACK) {
-            numPieces++;
-          }
-        }
-      }
-    }
-    return numPieces;
-  }
-
-  /**
-   * Returns the number of white pieces currently on the board.
-   *
-   * @return numPieces the number of white pieces currently on the board
-   */
-  public int getWhitePieceCount() {
-    int numPieces = 0;
-    for (AbstractTile[] row : grid) {
-      for (AbstractTile t : row) {
-        if (!t.isVacant()) {
-          if (t.getPiece().getPieceColour() == PieceColour.WHITE) {
+          if (t.getPiece().getPieceColour() == pieceColour) {
             numPieces++;
           }
         }
@@ -110,7 +70,7 @@ public class Board extends Observable {
    * @return return the tile with the given tile id.
    */
   public AbstractTile getTile(final int tileId) {
-    final Point point = this.translateIndexToPoint(tileId);
+    final Point point = translateIndexToPoint(tileId);
     return this.grid[point.y][point.x];
   }
 
@@ -134,7 +94,7 @@ public class Board extends Observable {
    */
   public static Point translateIndexToPoint(final int tileId) {
     // Translate tileId into a coordinate for 8x8 array.
-    int row = (int) (tileId / 8);
+    int row = tileId / 8;
     int col = tileId % 8;
     return new Point(col, row);
   }
@@ -163,7 +123,7 @@ public class Board extends Observable {
   private void boardSetup() {
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
-        int coordinate = this.translatePointToIndex(new Point(col, row));
+        int coordinate = translatePointToIndex(new Point(col, row));
         if (row == col && (row == 3 || row == 4)) {
           this.grid[row][col] = AbstractTile.createTile(coordinate, this.whitePieces.pop());
         } else if ((row == 3 || row == 4) && (col == 3 || col == 4)) {
@@ -176,48 +136,23 @@ public class Board extends Observable {
   }
 
   /**
-   * Switches the current player.
-   */
-  private void switchPlayer() {
-    this.currentPlayer = this.currentPlayer == 0 ? 1 : 0;
-  }
-
-  /**
-   * Retrieves the current player from the player array.
-   * @return the current player.
-   */
-  public AbstractPlayer getCurrentPlayer() {
-    return this.players[this.currentPlayer];
-  }
-
-  /**
    * Adds a piece to the board.
    *
    * @param coordinate the coordinate to add a piece to.
    * @return true if a piece was added to the board.
    */
-  public boolean addPiece(int coordinate) {
-
-    //translate the coordinate to grid array.
+  public boolean addPiece(int coordinate, PieceColour pieceColour) {
+    // Translate the coordinate to grid array.
     Point point = translateIndexToPoint(coordinate);
 
-    //create new piece
-    Piece piece = new Piece(this.getCurrentPlayer().getPlayerColour());
+    // Create new piece
+    Piece piece = new Piece(pieceColour);
 
-    //if the array calculated is vacant
-    if (Move.makeMove(this, point.y, point.x)) {
-      //place the piece on the grid
+    if (this.getTile(coordinate).isVacant()) {
+      // Place the piece on the grid
       this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, piece);
-      this.switchPlayer();
-
-      //notify observer of the changes
-      setChanged();
-      notifyObservers(this.getCurrentPlayer().getPlayerColour());
-
-
       return true;
     }
-
     return false;
   }
 

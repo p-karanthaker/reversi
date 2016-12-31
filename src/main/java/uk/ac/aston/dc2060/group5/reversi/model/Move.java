@@ -1,7 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi.model;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +24,13 @@ public class Move {
    * direction to see if the move is valid at all. If the move is valid, then the
    * {@link #piecesToFlip} array will have items in it and the pieces will be flipped over.
    *
-   * @param board the playing board.
+   * @param game the current game.
    * @param row the row of the piece we want to place.
    * @param col the column of the piece we want to place.
    * @return true if the move has been made, false if not.
    */
-  public static boolean makeMove(Board board, int row, int col) {
-    Move.board = board;
+  public static boolean makeMove(AbstractGame game, int row, int col) {
+    Move.board = game.getBoard();
     // boolean variable to return at end of method, set to true if move is valid
     boolean moveMade = false;
 
@@ -41,7 +43,7 @@ public class Move {
     }
 
     for (Direction direction : Direction.values()) {
-      checkDirection(board.getCurrentPlayer().getPlayerColour(), row, col, direction);
+      checkDirection(game.getCurrentPlayer().getPlayerColour(), row, col, direction);
     }
 
     if (piecesToFlip.size() > 0) {
@@ -65,7 +67,6 @@ public class Move {
    */
   private static void checkDirection(PieceColour playerColour, int row, int col,
                                      final Direction direction) {
-    System.out.println("Checking direction: " + direction);
 
     // List of pieces which can potentially be flipped.
     List<AbstractTile> potentialPiecesToFlip = new ArrayList<AbstractTile>();
@@ -117,6 +118,35 @@ public class Move {
     } else {
       potentialPiecesToFlip.clear();
     }
+  }
+
+  /**
+   * Checks if there is a valid move that can be made for a player
+   * @param pieceColour the current player colour so we know which player we are checking has valid moves
+   */
+  public static List<Point> allPossibleMoves(Board board, PieceColour pieceColour) {
+    Move.board = board;
+    // All validation is false unless proven true
+    boolean valid = false;
+
+    List<Point> potentialValidMoves = new ArrayList<>();
+
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        AbstractTile tile = board.getTile(row, col);
+
+        if (tile.isVacant()) {
+          for (Direction direction : Direction.values()) {
+            checkDirection(pieceColour, row, col, direction);
+            if (piecesToFlip.size() > 0) {
+              potentialValidMoves.add(new Point(col, row));
+              piecesToFlip.clear();
+            }
+          }
+        }
+      }
+    }
+    return potentialValidMoves;
   }
 
   /**

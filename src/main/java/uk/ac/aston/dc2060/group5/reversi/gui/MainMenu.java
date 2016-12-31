@@ -1,18 +1,27 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
-import javax.swing.*;
-import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
-import java.awt.*;
-import java.awt.Button;
+import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
-
 import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 
 /**
  * Created by Maryam on 22/11/2016.
@@ -59,8 +68,10 @@ public class MainMenu extends JFrame{
         panel.add(background);
 
         //Menu options
-        JButton option1 = new JButton("Player vs Player");
-        JButton option2 = new JButton("Player vs Al");
+        JButton buttonPvP = new JButton("Player vs Player");
+        JButton buttonPvC = new JButton("Player vs Al");
+        JButton buttonDemo = new JButton("Demo");
+        JButton buttonInstructions = new JButton("Instructions");
         JButton exit = new JButton("Exit");
 
 
@@ -71,11 +82,37 @@ public class MainMenu extends JFrame{
             }
         });
 
-        option1.addActionListener(new ActionListener() {
+        buttonPvP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new BoardUI();
+              AbstractGame game = new ClassicGame(GameType.PVP);
+              new ReversiEngine(game, new BoardUI(game));
+              frame.dispose();
+            }
+        });
+
+        buttonPvC.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              AbstractGame game = new ClassicGame(GameType.PVC);
+              new ReversiEngine(game, new BoardUI(game));
                 frame.dispose();
+            }
+        });
+
+        buttonDemo.addActionListener(new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            AbstractGame game = new ClassicGame(GameType.DEMO);
+            new ReversiEngine(game, new BoardUI(game));
+            frame.dispose();
+          }
+        });
+
+        buttonInstructions.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new RulesUI();
             }
         });
 
@@ -89,8 +126,10 @@ public class MainMenu extends JFrame{
         panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
 
         panel2.setOpaque(false);
-        panel2.add(option1);
-        panel2.add(option2);
+        panel2.add(buttonPvP);
+        panel2.add(buttonPvC);
+        panel2.add(buttonDemo);
+        panel2.add(buttonInstructions);
         panel2.add(exit);
 
         JLayeredPane master = new JLayeredPane();
