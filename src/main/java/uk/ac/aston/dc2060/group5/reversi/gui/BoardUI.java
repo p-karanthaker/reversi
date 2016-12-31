@@ -5,6 +5,7 @@ import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
+import uk.ac.aston.dc2060.group5.reversi.rulesets.AntiReversi;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.ClassicGame;
 
 import java.awt.BorderLayout;
@@ -108,12 +109,17 @@ public class BoardUI implements Observer {
     // Determine winner
     int optionPicked = 0;
     String popupMessageText = null;
-    if (this.game.getBoard().getPieceCount(PieceColour.BLACK) > this.game.getBoard().getPieceCount(PieceColour.WHITE)) {
-      popupMessageText = "Black Wins!";
-    } else if (this.game.getBoard().getPieceCount(PieceColour.WHITE) > this.game.getBoard().getPieceCount(PieceColour.BLACK)) {
-      popupMessageText = "White Wins!";
-    } else {
-      popupMessageText = "The game was a tie!";
+
+    switch (this.game.determineWinner()) {
+      case BLACK:
+        popupMessageText = "Black Wins!";
+        break;
+      case WHITE:
+        popupMessageText = "White Wins!";
+        break;
+      default:
+        popupMessageText = "The game was a tie!";
+        break;
     }
 
     optionPicked = JOptionPane.showOptionDialog(mainWindow,
@@ -129,7 +135,12 @@ public class BoardUI implements Observer {
       // Play Again
       case 0:
         this.mainWindow.dispose();
-        AbstractGame newGame = new ClassicGame(game.getGameType());
+        AbstractGame newGame;
+        if (game instanceof ClassicGame) {
+          newGame = new ClassicGame(game.getGameType());
+        } else {
+          newGame = new AntiReversi(game.getGameType());
+        }
         new ReversiEngine(newGame, new BoardUI(newGame));
         break;
       // Exit
