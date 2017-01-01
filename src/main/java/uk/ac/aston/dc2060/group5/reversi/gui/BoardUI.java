@@ -13,14 +13,19 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,6 +44,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
+import javax.swing.plaf.ColorUIResource;
 
 /**
  * Creates the view of the Reversi playing board.
@@ -252,12 +258,70 @@ public class BoardUI implements Observer {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // Retain old paint
+        Paint oldPaint = g2.getPaint();
+        Color colour;
+
+        // Fill circle with solid colour - Black or White
         if (pieceColour.equals(PieceColour.BLACK)) {
-          g2.setColor(Color.BLACK);
+          colour = Color.BLACK;
+          g2.setColor(colour);
         } else {
-          g2.setColor(Color.WHITE);
+          colour = Color.WHITE;
+          g2.setColor(colour);
         }
+        //g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Fills the circle with solid blue color
         g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Adds shadows at the top
+        Paint p;
+        p = new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 0.4f),
+            0, getHeight(), new Color(0.0f, 0.0f, 0.0f, 0.0f));
+        g2.setPaint(p);
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Adds highlights at the bottom
+        p = new GradientPaint(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.0f),
+            0, getHeight(), new Color(1.0f, 1.0f, 1.0f, 0.4f));
+        g2.setPaint(p);
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Creates dark edges for 3D effect
+        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+            getHeight() / 2.0), getWidth() / 2.0f,
+            new float[] { 0.0f, 1.0f },
+            new Color[] { colour,
+                new Color(0.0f, 0.0f, 0.0f, 0.8f) });
+        g2.setPaint(p);
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Adds oval inner highlight at the bottom
+        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+            getHeight() * 1.5), getWidth() / 2.3f,
+            new Point2D.Double(getWidth() / 2.0, getHeight() * 1.75 + 6),
+            new float[] { 0.0f, 0.8f },
+            new Color[] { colour,
+                new Color(64, 142, 203, 0) },
+            RadialGradientPaint.CycleMethod.NO_CYCLE,
+            RadialGradientPaint.ColorSpaceType.SRGB,
+            AffineTransform.getScaleInstance(1.0, 0.5));
+        g2.setPaint(p);
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Adds oval specular highlight at the top left
+        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+            getHeight() / 2.0), getWidth() / 1.4f,
+            new Point2D.Double(45.0, 25.0),
+            new float[] { 0.0f, 0.5f },
+            new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 1.0f, 0.0f) },
+            RadialGradientPaint.CycleMethod.NO_CYCLE);
+        g2.setPaint(p);
+        g2.fillOval(w/8, h/8, w*8/10, w*8/10);
+
+        // Restores the previous state
+        g2.setPaint(oldPaint);
 
       } else {
         super.paintComponent(g);
@@ -343,7 +407,8 @@ public class BoardUI implements Observer {
     backToMainMenuItem.setToolTipText("Go back to main menu");
     backToMainMenuItem.addActionListener((ActionEvent event) -> {
       try {
-        mainWindow.dispose();
+        this.game.setGameState(AbstractGame.GameState.ABORTED);
+        this.mainWindow.dispose();
         new MainMenu();
       } catch (IOException ignored) {
       }

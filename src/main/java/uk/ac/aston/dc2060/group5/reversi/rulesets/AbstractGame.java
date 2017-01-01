@@ -111,7 +111,7 @@ public abstract class AbstractGame extends Observable {
   }
 
   public enum GameState {
-    IN_PROGRESS, GAVE_OVER;
+    IN_PROGRESS, GAVE_OVER, ABORTED;
   }
 
 }

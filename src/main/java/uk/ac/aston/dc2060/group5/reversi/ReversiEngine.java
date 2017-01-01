@@ -33,6 +33,12 @@ public class ReversiEngine implements Runnable {
 
   @Override
   public void run() {
+    // Check if game is aborted.
+    if (this.game.getGameState().equals(AbstractGame.GameState.ABORTED)) {
+      Thread.currentThread().interrupt();
+      return;
+    }
+
     // Check if game is ended.
     if (this.game.getGameState().equals(AbstractGame.GameState.GAVE_OVER)) {
       this.gui.endGamePopup();
