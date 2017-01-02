@@ -1,0 +1,61 @@
+[{
+  "name": "Classic",
+  "bgColour": "#2ECC71",
+  "bgImage": "",
+  "opacity": [{
+    "light": 0,
+    "dark": 40
+  }],
+  "pieceColours": [{
+    "black": "#000000",
+    "white": "#FFFFFF"
+  }]
+}, {
+  "name": "Bubblegum",
+  "bgColour": "",
+  "bgImage": "bubblegum.jpg",
+  "opacity": [{
+    "light": 0,
+    "dark": 20
+  }],
+  "pieceColours": [{
+    "black": "#C2476E",
+    "white": "#FFFFFF"
+  }]
+}, {
+  "name": "Sky",
+  "bgColour": "",
+  "bgImage": "sky.png",
+  "opacity": [{
+    "light": 0,
+    "dark": 20
+  }],
+  "pieceColours": [{
+    "black": "#4F9CBE",
+    "white": "#FFFFFF"
+  }]
+}, {
+  "name": "Space",
+  "bgColour": "",
+  "bgImage": "space.jpg",
+  "opacity": [{
+    "light": 0,
+    "dark": 50
+  }],
+  "pieceColours": [{
+    "black": "#5800D0",
+    "white": "#FFFFFF"
+  }]
+}, {
+  "name": "Wood",
+  "bgColour": "",
+  "bgImage": "wood.jpg",
+  "opacity": [{
+    "light": 0,
+    "dark": 60
+  }],
+  "pieceColours": [{
+    "black": "#272220",
+    "white": "#F8E4CE"
+  }]
+}]
