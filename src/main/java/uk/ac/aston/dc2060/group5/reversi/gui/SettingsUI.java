@@ -1,6 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import uk.ac.aston.dc2060.group5.reversi.Settings;
 
@@ -9,15 +12,20 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 /**
  * Created by Karan on 04/12/2016.
@@ -78,10 +86,66 @@ public class SettingsUI extends JFrame {
     return jComboBox;
   }
 
-  private void changeTheme(String settingName) {
+  public void changeTheme(String settingName) {
     for (Settings setting : this.setting) {
       if (setting.getName().equals(settingName)) {
-        System.out.println(settingName);
+        Gson gson = new Gson();
+        JsonElement jsonElement = null;
+        try {
+          InputStream is = this.getClass().getResourceAsStream("/config.json");
+          Reader reader = new InputStreamReader(is, "UTF-8");
+          jsonElement = gson.fromJson(reader, JsonElement.class);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        JsonObject theme = jsonObject.getAsJsonObject("theme");
+        theme.addProperty("name", setting.getName());
+        theme.addProperty("bgColour", setting.getBgColour());
+        theme.addProperty("bgImage", setting.getBgImage());
+
+        JsonArray opacityList = new JsonArray();
+        JsonObject opacity = new JsonObject();
+        opacity.addProperty("light", setting.getOpacity()[0].getLight());
+        opacity.addProperty("dark", setting.getOpacity()[0].getDark());
+        opacityList.add(opacity);
+        theme.add("opacity", opacityList);
+
+        JsonArray pieceColoursList = new JsonArray();
+        JsonObject pieceColours = new JsonObject();
+        pieceColours.addProperty("black", setting.getPieceColours()[0].getBlack());
+        pieceColours.addProperty("white", setting.getPieceColours()[0].getWhite());
+        pieceColoursList.add(pieceColours);
+        theme.add("pieceColours", pieceColoursList);
+
+        Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
+
+        //Custom button text
+        Object[] options = { "OK" };
+        int n = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
+            "In order to apply the changes, the application will close.",
+            "Apply Changes",
+            JOptionPane.YES_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]);
+
+        switch(n) {
+          case (JOptionPane.YES_OPTION):
+          default:
+            try {
+              FileWriter fileWriter = new FileWriter(configPath.toFile());
+              fileWriter.write(jsonObject.toString());
+              fileWriter.close();
+            } catch (IOException e) {
+              e.printStackTrace();
+            } finally {
+              System.exit(0);
+            }
+            break;
+        }
       }
     }
   }

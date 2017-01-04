@@ -1,5 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi.gui;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
@@ -27,8 +31,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -59,6 +72,7 @@ public class BoardUI implements Observer {
   private ScorePanel scorePanel;
   private CurrentTurnPanel currentTurnPanel;
 
+  private JsonObject theme;
   private Image bg;
 
   // Allows us to create a suitable size window for any screen resolution.
@@ -70,11 +84,44 @@ public class BoardUI implements Observer {
   private AbstractPlayer[] players;
 
   public BoardUI(AbstractGame game) {
-    InputStream bgStream = this.getClass().getResourceAsStream("");
+    Gson gson = new Gson();
+    JsonElement jsonElement = null;
+    Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
+    System.out.println(configPath);
+    if (!Files.exists(configPath)) {
+      try {
+        Files.createDirectories(configPath.getParent());
+        Files.createFile(configPath);
+
+        InputStream is = this.getClass().getResourceAsStream("/config.json");
+        OutputStream os = new FileOutputStream(configPath.toFile());
+        byte[] buffer = new byte[is.available()];
+        is.read(buffer);
+        os.write(buffer);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
     try {
-      this.bg = ImageIO.read(bgStream);
-    } catch (final IOException e) {
+      InputStream is = new FileInputStream(configPath.toFile());
+      Reader reader = new InputStreamReader(is, "UTF-8");
+      jsonElement = gson.fromJson(reader, JsonElement.class);
+    } catch (IOException e) {
       e.printStackTrace();
+    }
+
+    JsonObject jsonObject = jsonElement.getAsJsonObject();
+    System.out.println(jsonObject);
+    this.theme = jsonObject.getAsJsonObject("theme");
+
+    if (!this.theme.get("bgImage").toString().equals("null") && !this.theme.get("bgImage").getAsString().isEmpty()) {
+      InputStream bgStream = this.getClass().getResourceAsStream("/themes/" + this.theme.get("bgImage").getAsString());
+      try {
+        this.bg = ImageIO.read(bgStream);
+      } catch (final IOException e) {
+        e.printStackTrace();
+      }
     }
 
     this.game = game;
@@ -184,8 +231,10 @@ public class BoardUI implements Observer {
     BoardPanel() {
       super(new GridLayout(8, 8));
 
-      // Default
-      this.setBackground(new Color(46, 204, 113));
+      // Default background
+      if (!theme.get("bgColour").toString().equals("null") && !theme.get("bgColour").getAsString().isEmpty()) {
+        this.setBackground(Color.decode(theme.get("bgColour").getAsString()));
+      }
 
       this.boardTiles = new ArrayList<TilePanel>();
       int row = 0;
@@ -197,17 +246,18 @@ public class BoardUI implements Observer {
           row++;
         }
 
+        JsonObject opacityObject = theme.getAsJsonArray("opacity").get(0).getAsJsonObject();
         if (row % 2 == 0) {
           if (i % 2 == 0) {
-            tilePanel.setBackground(new Color(0, 0, 0, 0));
+            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.get("light").getAsInt()));
           } else {
-            tilePanel.setBackground(new Color(0, 0, 0, 40));
+            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.get("dark").getAsInt()));
           }
         } else {
           if (i % 2 == 0) {
-            tilePanel.setBackground(new Color(0, 0, 0, 40));
+            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.getAsJsonObject().get("dark").getAsInt()));
           } else {
-            tilePanel.setBackground(new Color(0, 0, 0, 0));
+            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.getAsJsonObject().get("light").getAsInt()));
           }
         }
         add(tilePanel);
@@ -267,11 +317,14 @@ public class BoardUI implements Observer {
         Color colour;
 
         // Fill circle with solid colour - Black or White
+        JsonObject pieceColourObject = theme.getAsJsonArray("pieceColours").get(0).getAsJsonObject();
         if (pieceColour.equals(PieceColour.BLACK)) {
-          colour = Color.decode("#000000");
+          String black = pieceColourObject.get("black").getAsString();
+          colour = Color.decode(black);
           g2.setColor(colour);
         } else {
-          colour = Color.decode("#FFFFFF");
+          String white = pieceColourObject.get("white").getAsString();
+          colour = Color.decode(white);
           g2.setColor(colour);
         }
         // Fills the circle with solid color
@@ -292,17 +345,20 @@ public class BoardUI implements Observer {
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 2.0f,
             new float[] { 0.0f, 1.0f },
-            new Color[] { colour, new Color(0.0f, 0.0f, 0.0f, 0.2f) });
+            new Color[] { colour, new Color(0.0f, 0.0f, 0.0f, 0.1f) });
         g2.setPaint(p);
         g2.fillOval(1, h/32, w-1, w-1);
 
         // Adds oval inner highlight at the bottom
+        int rTint = colour.getRed() + (255 - colour.getRed()) * 0;
+        int gTint = colour.getGreen() + (255 - colour.getGreen()) * 0;
+        int bTint = colour.getBlue() + (255 - colour.getBlue()) * 0;
+
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() * 1.5), getWidth() / 2.3f,
             new Point2D.Double(getWidth() / 2.0, getHeight() * 1.75 + 6),
             new float[] { 0.0f, 0.8f },
-            new Color[] { colour,
-                new Color(64, 142, 203, 0) },
+            new Color[] { colour, new Color(rTint, gTint, bTint, 0) },
             RadialGradientPaint.CycleMethod.NO_CYCLE,
             RadialGradientPaint.ColorSpaceType.SRGB,
             AffineTransform.getScaleInstance(1.0, 0.5));

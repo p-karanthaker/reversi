@@ -9,7 +9,7 @@ public class Settings {
 
   private String bgColour;
 
-  private String image;
+  private String bgImage;
 
   private Opacity[] opacity;
 
@@ -23,8 +23,8 @@ public class Settings {
     this.bgColour = bgColour;
   }
 
-  public void setImage(String image) {
-    this.image = image;
+  public void setBgImage(String bgImage) {
+    this.bgImage = bgImage;
   }
 
   public void setOpacity(Opacity[] opacity) {
@@ -43,8 +43,8 @@ public class Settings {
     return this.bgColour;
   }
 
-  public String getImage() {
-    return this.image;
+  public String getBgImage() {
+    return this.bgImage;
   }
 
   public Opacity[] getOpacity() {
