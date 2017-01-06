@@ -20,15 +20,13 @@ import javax.swing.SwingWorker;
  * Created by Sam on 09/10/2016.
  */
 public class ReversiEngine implements Runnable {
-
   private AbstractGame game;
   private BoardUI gui;
 
   public ReversiEngine(AbstractGame game, BoardUI gui) {
     this.game = game;
     this.gui = gui;
-    updateListeners();
-    run();
+    this.afterMove();
   }
 
   @Override

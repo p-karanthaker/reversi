@@ -96,7 +96,7 @@ public class MainMenu extends JFrame{
             public void actionPerformed(ActionEvent e) {
               AbstractGame game = new ClassicGame(GameType.PVC);
               new ReversiEngine(game, new BoardUI(game));
-                frame.dispose();
+              frame.dispose();
             }
         });
 

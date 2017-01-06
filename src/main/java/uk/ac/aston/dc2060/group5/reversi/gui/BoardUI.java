@@ -2,9 +2,9 @@ package uk.ac.aston.dc2060.group5.reversi.gui;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import uk.ac.aston.dc2060.group5.reversi.ReversiEngine;
+import uk.ac.aston.dc2060.group5.reversi.Settings;
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
@@ -72,8 +72,8 @@ public class BoardUI implements Observer {
   private ScorePanel scorePanel;
   private CurrentTurnPanel currentTurnPanel;
 
-  private JsonObject theme;
   private Image bg;
+  private Settings theme;
 
   // Allows us to create a suitable size window for any screen resolution.
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
@@ -106,17 +106,13 @@ public class BoardUI implements Observer {
     try {
       InputStream is = new FileInputStream(configPath.toFile());
       Reader reader = new InputStreamReader(is, "UTF-8");
-      jsonElement = gson.fromJson(reader, JsonElement.class);
+      theme = gson.fromJson(reader, Settings.class);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    JsonObject jsonObject = jsonElement.getAsJsonObject();
-    System.out.println(jsonObject);
-    this.theme = jsonObject.getAsJsonObject("theme");
-
-    if (!this.theme.get("bgImage").toString().equals("null") && !this.theme.get("bgImage").getAsString().isEmpty()) {
-      InputStream bgStream = this.getClass().getResourceAsStream("/themes/" + this.theme.get("bgImage").getAsString());
+    if (this.theme.getBgImage() != null && !this.theme.getBgImage().isEmpty()) {
+      InputStream bgStream = this.getClass().getResourceAsStream("/themes/" + this.theme.getBgImage());
       try {
         this.bg = ImageIO.read(bgStream);
       } catch (final IOException e) {
@@ -232,8 +228,8 @@ public class BoardUI implements Observer {
       super(new GridLayout(8, 8));
 
       // Default background
-      if (!theme.get("bgColour").toString().equals("null") && !theme.get("bgColour").getAsString().isEmpty()) {
-        this.setBackground(Color.decode(theme.get("bgColour").getAsString()));
+      if (theme.getBgColour() != null && !theme.getBgColour().isEmpty()) {
+        this.setBackground(Color.decode(theme.getBgColour()));
       }
 
       this.boardTiles = new ArrayList<TilePanel>();
@@ -246,18 +242,18 @@ public class BoardUI implements Observer {
           row++;
         }
 
-        JsonObject opacityObject = theme.getAsJsonArray("opacity").get(0).getAsJsonObject();
+        Settings.Opacity opacity = theme.getOpacity()[0];
         if (row % 2 == 0) {
           if (i % 2 == 0) {
-            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.get("light").getAsInt()));
+            tilePanel.setBackground(new Color(0, 0, 0, opacity.getLight()));
           } else {
-            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.get("dark").getAsInt()));
+            tilePanel.setBackground(new Color(0, 0, 0, opacity.getDark()));
           }
         } else {
           if (i % 2 == 0) {
-            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.getAsJsonObject().get("dark").getAsInt()));
+            tilePanel.setBackground(new Color(0, 0, 0, opacity.getDark()));
           } else {
-            tilePanel.setBackground(new Color(0, 0, 0, opacityObject.getAsJsonObject().get("light").getAsInt()));
+            tilePanel.setBackground(new Color(0, 0, 0, opacity.getLight()));
           }
         }
         add(tilePanel);
@@ -308,8 +304,6 @@ public class BoardUI implements Observer {
         int w = getWidth();
 
         Graphics2D g2 = (Graphics2D) g;
-        super.paintComponent(g2);
-
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Retain old paint
@@ -317,13 +311,13 @@ public class BoardUI implements Observer {
         Color colour;
 
         // Fill circle with solid colour - Black or White
-        JsonObject pieceColourObject = theme.getAsJsonArray("pieceColours").get(0).getAsJsonObject();
+        Settings.PieceColours pieceColours = theme.getPieceColours()[0];
         if (pieceColour.equals(PieceColour.BLACK)) {
-          String black = pieceColourObject.get("black").getAsString();
+          String black = pieceColours.getBlack();
           colour = Color.decode(black);
           g2.setColor(colour);
         } else {
-          String white = pieceColourObject.get("white").getAsString();
+          String white = pieceColours.getWhite();
           colour = Color.decode(white);
           g2.setColor(colour);
         }
@@ -377,7 +371,7 @@ public class BoardUI implements Observer {
 
         // Restores the previous state
         g2.setPaint(oldPaint);
-
+        super.paintComponent(g2);
       } else {
         super.paintComponent(g);
       }

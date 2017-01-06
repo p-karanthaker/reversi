@@ -99,8 +99,7 @@ public class SettingsUI extends JFrame {
           e.printStackTrace();
         }
 
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        JsonObject theme = jsonObject.getAsJsonObject("theme");
+        JsonObject theme = jsonElement.getAsJsonObject();
         theme.addProperty("name", setting.getName());
         theme.addProperty("bgColour", setting.getBgColour());
         theme.addProperty("bgImage", setting.getBgImage());
@@ -137,12 +136,12 @@ public class SettingsUI extends JFrame {
           default:
             try {
               FileWriter fileWriter = new FileWriter(configPath.toFile());
-              fileWriter.write(jsonObject.toString());
+              fileWriter.write(theme.toString());
               fileWriter.close();
             } catch (IOException e) {
               e.printStackTrace();
             } finally {
-              System.exit(0);
+              //System.exit(0);
             }
             break;
         }
