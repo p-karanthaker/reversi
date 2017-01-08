@@ -8,7 +8,7 @@ import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
 public class AntiReversi extends AbstractGame {
 
   public AntiReversi(GameType gameType) {
-    super(gameType);
+    super(gameType, false);
   }
 
   @Override

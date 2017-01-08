@@ -16,12 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Created by Maryam on 22/11/2016.
@@ -70,6 +65,7 @@ public class MainMenu extends JFrame{
         //Menu options
         JButton buttonPvP = new JButton("Player vs Player");
         JButton buttonPvC = new JButton("Player vs Al");
+        JCheckBox checkBoxHardDifficulty = new JCheckBox("Hard Difficulty?");
         JButton buttonDemo = new JButton("Demo");
         JButton buttonInstructions = new JButton("Instructions");
         JButton exit = new JButton("Exit");
@@ -85,7 +81,7 @@ public class MainMenu extends JFrame{
         buttonPvP.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              AbstractGame game = new ClassicGame(GameType.PVP);
+              AbstractGame game = new ClassicGame(GameType.PVP, false);
               new ReversiEngine(game, new BoardUI(game));
               frame.dispose();
             }
@@ -94,7 +90,7 @@ public class MainMenu extends JFrame{
         buttonPvC.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              AbstractGame game = new ClassicGame(GameType.PVC);
+              AbstractGame game = new ClassicGame(GameType.PVC, checkBoxHardDifficulty.isSelected());
               new ReversiEngine(game, new BoardUI(game));
               frame.dispose();
             }
@@ -103,7 +99,7 @@ public class MainMenu extends JFrame{
         buttonDemo.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            AbstractGame game = new ClassicGame(GameType.DEMO);
+            AbstractGame game = new ClassicGame(GameType.DEMO, false);
             new ReversiEngine(game, new BoardUI(game));
             frame.dispose();
           }
@@ -128,6 +124,7 @@ public class MainMenu extends JFrame{
         panel2.setOpaque(false);
         panel2.add(buttonPvP);
         panel2.add(buttonPvC);
+        panel2.add(checkBoxHardDifficulty);
         panel2.add(buttonDemo);
         panel2.add(buttonInstructions);
         panel2.add(exit);

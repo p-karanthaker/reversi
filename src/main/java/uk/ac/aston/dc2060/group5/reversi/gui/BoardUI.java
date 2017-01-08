@@ -178,7 +178,7 @@ public class BoardUI implements Observer {
         this.mainWindow.dispose();
         AbstractGame newGame;
         if (game instanceof ClassicGame) {
-          newGame = new ClassicGame(game.getGameType());
+          newGame = new ClassicGame(game.getGameType(), game.getDifficulty());
         } else {
           newGame = new AntiReversi(game.getGameType());
         }

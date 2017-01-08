@@ -19,9 +19,10 @@ public abstract class AbstractGame extends Observable {
   protected Board playingBoard;
   private AbstractPlayer[] players;
   protected GameType gameType;
+  private boolean hardDifficulty;
   private int currentPlayer;
 
-  public AbstractGame(GameType gameType) {
+  public AbstractGame(GameType gameType, boolean hardDifficulty) {
     this.players = new AbstractPlayer[2];
     this.gameType = gameType;
     this.playingBoard = new Board();
@@ -33,10 +34,10 @@ public abstract class AbstractGame extends Observable {
       this.players[1] = new HumanPlayer(Piece.PieceColour.WHITE);
     } else if (this.gameType.equals(GameType.PVC)){
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
-      this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE);
+      this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE, hardDifficulty);
     } else if (this.gameType.equals(GameType.DEMO)) {
-      this.players[0] = new CPUPlayer(Piece.PieceColour.BLACK);
-      this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE);
+      this.players[0] = new CPUPlayer(Piece.PieceColour.BLACK, false);
+      this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE, false);
     }
 
     if (players.length != 2) {
@@ -67,6 +68,10 @@ public abstract class AbstractGame extends Observable {
 
   public GameType getGameType() {
     return this.gameType;
+  }
+
+  public boolean getDifficulty() {
+    return this.hardDifficulty;
   }
 
   public GameState getGameState() {

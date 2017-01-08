@@ -11,8 +11,8 @@ import java.awt.Point;
  */
 public class ClassicGame extends AbstractGame {
 
-  public ClassicGame(GameType gameType) {
-    super(gameType);
+  public ClassicGame(GameType gameType, boolean hardDifficulty) {
+    super(gameType, hardDifficulty);
   }
 
   @Override
