@@ -20,19 +20,23 @@ import javax.swing.SwingWorker;
  * Created by Sam on 09/10/2016.
  */
 public class ReversiEngine implements Runnable {
-
   private AbstractGame game;
   private BoardUI gui;
 
   public ReversiEngine(AbstractGame game, BoardUI gui) {
     this.game = game;
     this.gui = gui;
-    updateListeners();
-    run();
+    this.afterMove();
   }
 
   @Override
   public void run() {
+    // Check if game is aborted.
+    if (this.game.getGameState().equals(AbstractGame.GameState.ABORTED)) {
+      Thread.currentThread().interrupt();
+      return;
+    }
+
     // Check if game is ended.
     if (this.game.getGameState().equals(AbstractGame.GameState.GAVE_OVER)) {
       this.gui.endGamePopup();

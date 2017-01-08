@@ -1,11 +1,13 @@
 package uk.ac.aston.dc2060.group5.reversi.rulesets;
 
 import uk.ac.aston.dc2060.group5.reversi.model.Board;
+import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece;
 import uk.ac.aston.dc2060.group5.reversi.players.AbstractPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 
+import java.awt.Point;
 import java.util.Observable;
 
 /**
@@ -82,10 +84,34 @@ public abstract class AbstractGame extends Observable {
     return false;
   }
 
-  public abstract boolean playerTurn(int coordinate);
+  public abstract Piece.PieceColour determineWinner();
+
+  public boolean playerTurn(int coordinate) {
+    Point point = Board.translateIndexToPoint(coordinate);
+    //if the array calculated is vacant
+    if (Move.makeMove(this, point.y, point.x)) {
+      this.playingBoard.addPiece(coordinate, this.getCurrentPlayer().getPlayerColour());
+      this.switchPlayer();
+
+      // Check if the new player can make a legal move, and pass back turn if they can't
+      if (Move.allPossibleMoves(this.getBoard(), this.getCurrentPlayer().getPlayerColour()).size() == 0) {
+        this.switchPlayer();
+        if (Move.allPossibleMoves(this.getBoard(), this.getCurrentPlayer().getPlayerColour()).size() == 0) {
+          // End game if both players cannot make a legal move.
+          this.setGameState(AbstractGame.GameState.GAVE_OVER);
+        }
+      }
+
+      //notify observer of the changes
+      setChanged();
+      notifyObservers(this.getGameState());
+      return true;
+    }
+    return false;
+  }
 
   public enum GameState {
-    IN_PROGRESS, GAVE_OVER;
+    IN_PROGRESS, GAVE_OVER, ABORTED;
   }
 
 }
