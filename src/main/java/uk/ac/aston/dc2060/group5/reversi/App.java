@@ -15,10 +15,6 @@ public class App {
    * @param args command line args.
    */
   public static void main(String[] args) throws IOException {
-    System.out.println("Hello World!");
-    System.out.println("Git Test - Sam :)");
-    System.out.println("Test Maryam !!");
-    //new BoardUI();
     new MainMenu();
   }
 }

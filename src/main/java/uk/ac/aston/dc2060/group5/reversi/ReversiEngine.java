@@ -1,6 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi;
 
 import uk.ac.aston.dc2060.group5.reversi.gui.BoardUI;
+import uk.ac.aston.dc2060.group5.reversi.gui.MainMenu;
+import uk.ac.aston.dc2060.group5.reversi.gui.RulesUI;
+import uk.ac.aston.dc2060.group5.reversi.gui.SettingsUI;
 import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.players.CPUPlayer;
 import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
@@ -8,8 +11,10 @@ import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +31,7 @@ public class ReversiEngine implements Runnable {
   public ReversiEngine(AbstractGame game, BoardUI gui) {
     this.game = game;
     this.gui = gui;
+    this.oneTimeListeners();
     this.afterMove();
   }
 
@@ -105,5 +111,36 @@ public class ReversiEngine implements Runnable {
         });
       }
     }
+
+
+  }
+
+  /**
+   * Listeners which do not need to be refreshed.
+   */
+  public void oneTimeListeners() {
+    this.gui.backToMainMenuItem.addActionListener((ActionEvent event) -> {
+      try {
+        this.game.setGameState(AbstractGame.GameState.ABORTED);
+        this.gui.mainWindow.dispose();
+        this.game = null;
+        this.gui = null;
+        new MainMenu();
+      } catch (IOException ignored) {
+      }
+
+    });
+
+    this.gui.exitMenuItem.addActionListener((ActionEvent event) -> {
+      System.exit(0);
+    });
+
+    this.gui.rulesMenuItem.addActionListener((ActionEvent event) -> {
+      new RulesUI();
+    });
+
+    this.gui.settingsMenuItem.addActionListener((ActionEvent event) -> {
+      new SettingsUI(this.gui);
+    });
   }
 }

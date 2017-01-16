@@ -40,12 +40,13 @@ public class SettingsUI extends JFrame {
 
   private Settings[] setting;
   private BoardUI boardUI;
+  private JFrame frame;
 
   public SettingsUI(BoardUI boardUI) {
     this.boardUI = boardUI;
 
     //Create main window and set exit on close
-    JFrame frame = new JFrame("Settings");
+    frame = new JFrame("Settings");
     frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     frame.setPreferredSize(new Dimension(400, 100));
     frame.setLayout(new FlowLayout());
@@ -123,7 +124,7 @@ public class SettingsUI extends JFrame {
         //Custom button text
         Object[] options = { "OK" };
         int n = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
-            "In order to apply the changes, the application will close.",
+            "The new themes will be available in your next game.",
             "Apply Changes",
             JOptionPane.YES_OPTION,
             JOptionPane.QUESTION_MESSAGE,
@@ -138,6 +139,7 @@ public class SettingsUI extends JFrame {
               FileWriter fileWriter = new FileWriter(configPath.toFile());
               fileWriter.write(theme.toString());
               fileWriter.close();
+              frame.dispose();
             } catch (IOException e) {
               e.printStackTrace();
             } finally {

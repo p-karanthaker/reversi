@@ -27,7 +27,6 @@ import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -67,7 +66,13 @@ public class BoardUI implements Observer {
   private AbstractGame game;
 
   public JFrame mainWindow;
+
   private JMenuBar menuBar = createMenuBar();
+  public JMenuItem backToMainMenuItem;
+  public JMenuItem exitMenuItem;
+  public JMenuItem rulesMenuItem;
+  public JMenuItem settingsMenuItem;
+
   private BoardPanel boardPanel;
   private ScorePanel scorePanel;
   private CurrentTurnPanel currentTurnPanel;
@@ -207,11 +212,9 @@ public class BoardUI implements Observer {
 
   @Override
   public void update(Observable o, Object arg) {
-    // Update tiles
-    for (TilePanel tilePanel : this.boardPanel.getBoardTiles()) {
-      tilePanel.revalidate();
-      tilePanel.repaint();
-    }
+    // Redraw board
+    boardPanel.revalidate();
+    boardPanel.repaint();
 
     // Update turn
     this.currentTurnPanel.updatePlayer();
@@ -442,8 +445,6 @@ public class BoardUI implements Observer {
   }
 
   private JMenuBar createMenuBar() {
-
-
     JMenuBar menubar = new JMenuBar();
 
     JMenu menu = new JMenu("Menu");
@@ -452,35 +453,17 @@ public class BoardUI implements Observer {
     menu.setMnemonic(KeyEvent.VK_M);
     options.setMnemonic(KeyEvent.VK_O);
 
-    JMenuItem backToMainMenuItem = new JMenuItem("Main Menu");
+    backToMainMenuItem = new JMenuItem("Main Menu");
     backToMainMenuItem.setToolTipText("Go back to main menu");
-    backToMainMenuItem.addActionListener((ActionEvent event) -> {
-      try {
-        this.game.setGameState(AbstractGame.GameState.ABORTED);
-        this.mainWindow.dispose();
-        new MainMenu();
-      } catch (IOException ignored) {
-      }
 
-    });
-
-    JMenuItem exitMenuItem = new JMenuItem("Exit");
+    exitMenuItem = new JMenuItem("Exit");
     exitMenuItem.setToolTipText("Exit application");
-    exitMenuItem.addActionListener((ActionEvent event) -> {
-      System.exit(0);
-    });
 
-    JMenuItem rulesMenuItem = new JMenuItem("Rules");
+    rulesMenuItem = new JMenuItem("Rules");
     rulesMenuItem.setToolTipText("Learn the rules of Reversi");
-    rulesMenuItem.addActionListener((ActionEvent event) -> {
-      new RulesUI();
-    });
 
-    JMenuItem settingsMenuItem = new JMenuItem("Settings");
+    settingsMenuItem = new JMenuItem("Settings");
     settingsMenuItem.setToolTipText("Change the theme of the Reversi board.");
-    settingsMenuItem.addActionListener((ActionEvent event) -> {
-      new SettingsUI(this);
-    });
 
     menu.add(backToMainMenuItem);
     menu.add(exitMenuItem);
@@ -491,6 +474,5 @@ public class BoardUI implements Observer {
     menubar.add(options);
 
     return menubar;
-
   }
 }
