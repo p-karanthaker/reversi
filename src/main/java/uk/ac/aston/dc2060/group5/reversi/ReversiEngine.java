@@ -32,7 +32,8 @@ public class ReversiEngine implements Runnable {
     this.game = game;
     this.gui = gui;
     this.oneTimeListeners();
-    this.afterMove();
+    this.updateListeners();
+    this.run();
   }
 
   @Override
@@ -72,7 +73,22 @@ public class ReversiEngine implements Runnable {
   public void afterMove() {
     System.out.println(this.game.getBoard());
     updateListeners();
+    passTurn();
+    game.update();
     run();
+  }
+
+  public void passTurn() {
+    this.game.switchPlayer();
+
+    // Check if the new player can make a legal move, and pass back turn if they can't
+    if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() == 0) {
+      this.game.switchPlayer();
+      if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() == 0) {
+        // End game if both players cannot make a legal move.
+        this.game.setGameState(AbstractGame.GameState.GAVE_OVER);
+      }
+    }
   }
 
   public void highlightMoves() {
@@ -99,10 +115,10 @@ public class ReversiEngine implements Runnable {
                 if (game.getCurrentPlayer() instanceof HumanPlayer) {
                   if (game.getCurrentPlayer().takeTurn(game, ((BoardUI.TilePanel) e.getSource()).getTileId())) {
                     System.out.println("Added piece to tile: " + (((BoardUI.TilePanel) e.getSource()).getTileId()));
+                    afterMove();
                   } else {
                     System.out.println("Failed to add piece to tile.");
                   }
-                  afterMove();
                 }
                 return null;
               }

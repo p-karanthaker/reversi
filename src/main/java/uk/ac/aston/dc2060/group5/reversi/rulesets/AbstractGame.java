@@ -96,23 +96,15 @@ public abstract class AbstractGame extends Observable {
     //if the array calculated is vacant
     if (Move.makeMove(this, point.y, point.x)) {
       this.playingBoard.addPiece(coordinate, this.getCurrentPlayer().getPlayerColour());
-      this.switchPlayer();
-
-      // Check if the new player can make a legal move, and pass back turn if they can't
-      if (Move.allPossibleMoves(this.getBoard(), this.getCurrentPlayer().getPlayerColour()).size() == 0) {
-        this.switchPlayer();
-        if (Move.allPossibleMoves(this.getBoard(), this.getCurrentPlayer().getPlayerColour()).size() == 0) {
-          // End game if both players cannot make a legal move.
-          this.setGameState(AbstractGame.GameState.GAVE_OVER);
-        }
-      }
-
-      //notify observer of the changes
-      setChanged();
-      notifyObservers(this.getGameState());
       return true;
     }
     return false;
+  }
+
+  public void update() {
+    //notify observer of the changes
+    setChanged();
+    notifyObservers(this.getGameState());
   }
 
   public enum GameState {
