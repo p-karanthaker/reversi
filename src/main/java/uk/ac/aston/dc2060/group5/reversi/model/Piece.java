@@ -73,23 +73,26 @@ public class Piece {
     /**
      * Colour Black - with short name of "b".
      */
-    BLACK("b"),
+    BLACK("b", "Black"),
 
     /**
      * Colour White - with short name of "w".
      */
-    WHITE("w");
+    WHITE("w", "White");
 
     /**
      * The short name of the piece colour.
      */
     private String shortName;
 
+    private String longName;
+
     /**
      * Constructor for {@link PieceColour} with a short name.
      */
-    PieceColour(String shortName) {
+    PieceColour(String shortName, String longName) {
       this.shortName = shortName;
+      this.longName = longName;
     }
 
     /**
@@ -99,6 +102,10 @@ public class Piece {
      */
     public String getShortName() {
       return this.shortName;
+    }
+
+    public String getLongName() {
+      return this.longName;
     }
   }
 

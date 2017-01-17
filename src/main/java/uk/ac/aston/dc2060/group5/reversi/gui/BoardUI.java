@@ -156,16 +156,12 @@ public class BoardUI implements Observer {
     int optionPicked = 0;
     String popupMessageText = null;
 
-    switch (this.game.determineWinner()) {
-      case BLACK:
-        popupMessageText = "Black Wins!";
-        break;
-      case WHITE:
-        popupMessageText = "White Wins!";
-        break;
-      default:
-        popupMessageText = "The game was a tie!";
-        break;
+    PieceColour winner = this.game.determineWinner();
+
+    if (winner == null) {
+      popupMessageText = "The game was a tie!";
+    } else {
+      popupMessageText = winner.getLongName() + " Wins!";
     }
 
     optionPicked = JOptionPane.showOptionDialog(mainWindow,

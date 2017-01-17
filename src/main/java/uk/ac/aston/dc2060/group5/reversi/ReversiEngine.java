@@ -17,6 +17,8 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingWorker;
@@ -27,6 +29,8 @@ import javax.swing.SwingWorker;
 public class ReversiEngine implements Runnable {
   private AbstractGame game;
   private BoardUI gui;
+  private int totalTime = 10;
+  private Timer gameTimer;
 
   public ReversiEngine(AbstractGame game, BoardUI gui) {
     this.game = game;
@@ -72,10 +76,40 @@ public class ReversiEngine implements Runnable {
 
   public void afterMove() {
     System.out.println(this.game.getBoard());
+
+    // Update all listeners
     updateListeners();
+
+    // Pass the turn before updating the GUI otherwise it will display the wrong person's turn.
     passTurn();
+
+    // Update GUI
     game.update();
+
+    // Check if game is over/aborted, start the timer if game is in progress, let AI take a move if possible
     run();
+  }
+
+  public void startTimer() {
+    this.gameTimer = new Timer();
+    this.gameTimer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        if (totalTime <= 0) {
+          pauseTimer();
+          game.setGameState(AbstractGame.GameState.GAVE_OVER);
+          gui.endGamePopup();
+          return;
+        }
+
+        totalTime--;
+        System.out.println(totalTime);
+      }
+    }, 0, 1000);
+  }
+
+  public void pauseTimer() {
+    this.gameTimer.cancel();
   }
 
   public void passTurn() {
