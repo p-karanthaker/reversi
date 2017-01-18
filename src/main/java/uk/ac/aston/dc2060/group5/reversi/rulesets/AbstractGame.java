@@ -20,6 +20,7 @@ public abstract class AbstractGame extends Observable {
   private AbstractPlayer[] players;
   protected GameType gameType;
   private boolean hardDifficulty;
+  private boolean timedGame;
   private int currentPlayer;
 
   public AbstractGame(GameType gameType, boolean hardDifficulty) {
@@ -27,6 +28,7 @@ public abstract class AbstractGame extends Observable {
     this.gameType = gameType;
     this.playingBoard = new Board();
     this.currentPlayer = 0;
+    this.timedGame = false;
     this.gameState = GameState.IN_PROGRESS;
 
     if (this.gameType.equals(GameType.PVP)) {
@@ -47,6 +49,13 @@ public abstract class AbstractGame extends Observable {
     }
   }
 
+  public AbstractGame(GameType gameType, boolean hardDifficulty, int totalTimePerPlayerInSeconds) {
+    this(gameType, hardDifficulty);
+    this.timedGame = true;
+    this.players[0].setTimeLeftToPlayInSeconds(totalTimePerPlayerInSeconds);
+    this.players[1].setTimeLeftToPlayInSeconds(totalTimePerPlayerInSeconds);
+  }
+
   /**
    * Switches the current player.
    */
@@ -60,6 +69,10 @@ public abstract class AbstractGame extends Observable {
    */
   public AbstractPlayer getCurrentPlayer() {
     return this.players[this.currentPlayer];
+  }
+
+  public AbstractPlayer[] getPlayers() {
+    return this.players;
   }
 
   public Board getBoard() {
@@ -80,6 +93,10 @@ public abstract class AbstractGame extends Observable {
 
   public void setGameState(GameState newState) {
     this.gameState = newState;
+  }
+
+  public boolean isTimedGame() {
+    return this.timedGame;
   }
 
   public boolean isGameOver() {

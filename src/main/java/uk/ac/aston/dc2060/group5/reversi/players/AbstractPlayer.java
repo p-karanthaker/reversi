@@ -9,6 +9,7 @@ import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 public abstract class AbstractPlayer {
 
   private PieceColour playerColour;
+  private int timeLeftToPlayInSeconds = 1;
 
   public AbstractPlayer(PieceColour playerColour) {
     this.playerColour = playerColour;
@@ -19,5 +20,13 @@ public abstract class AbstractPlayer {
   }
 
   public abstract boolean takeTurn(AbstractGame game, int coordinate);
+
+  public int getTimeLeftToPlayInSeconds() {
+    return timeLeftToPlayInSeconds;
+  }
+
+  public void setTimeLeftToPlayInSeconds(int timeLeftToPlayInSeconds) {
+    this.timeLeftToPlayInSeconds = timeLeftToPlayInSeconds;
+  }
 
 }

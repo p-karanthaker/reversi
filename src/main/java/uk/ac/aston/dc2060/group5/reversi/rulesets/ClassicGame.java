@@ -1,10 +1,6 @@
 package uk.ac.aston.dc2060.group5.reversi.rulesets;
 
-import uk.ac.aston.dc2060.group5.reversi.model.Board;
-import uk.ac.aston.dc2060.group5.reversi.model.Move;
 import uk.ac.aston.dc2060.group5.reversi.model.Piece.PieceColour;
-
-import java.awt.Point;
 
 /**
  * Created by Sam on 09/10/2016.
@@ -13,6 +9,10 @@ public class ClassicGame extends AbstractGame {
 
   public ClassicGame(GameType gameType, boolean hardDifficulty) {
     super(gameType, hardDifficulty);
+  }
+
+  public ClassicGame(GameType gameType, boolean hardDifficulty, int totalTimePerPlayerInSeconds) {
+    super(gameType, hardDifficulty, totalTimePerPlayerInSeconds);
   }
 
   @Override

@@ -29,7 +29,6 @@ import javax.swing.SwingWorker;
 public class ReversiEngine implements Runnable {
   private AbstractGame game;
   private BoardUI gui;
-  private int totalTime = 10;
   private Timer gameTimer;
 
   public ReversiEngine(AbstractGame game, BoardUI gui) {
@@ -51,7 +50,13 @@ public class ReversiEngine implements Runnable {
     // Check if game is ended.
     if (this.game.getGameState().equals(AbstractGame.GameState.GAVE_OVER)) {
       this.gui.endGamePopup();
+      Thread.currentThread().interrupt();
+      return;
     } else {
+      if (this.game.isTimedGame()) {
+        startTimer();
+      }
+
       if (!this.game.getGameType().equals(GameType.PVP) && this.game.getCurrentPlayer() instanceof CPUPlayer) {
         // Execute logic from the GUI without blocking it.
         new SwingWorker<String, Void>() {
@@ -62,6 +67,11 @@ public class ReversiEngine implements Runnable {
               TimeUnit.SECONDS.sleep(new Random().nextInt(2) + 1);
             } catch (InterruptedException e) {
               e.printStackTrace();
+            } finally {
+              // Must check if the computer can still make a move after the delay.
+              if (game.isTimedGame() && game.getCurrentPlayer().getTimeLeftToPlayInSeconds() <= 0) {
+                return null;
+              }
             }
 
             // Make move after delay.
@@ -77,17 +87,22 @@ public class ReversiEngine implements Runnable {
   public void afterMove() {
     System.out.println(this.game.getBoard());
 
+    if (this.game.isTimedGame()) {
+      // Pause timer first
+      this.pauseTimer();
+    }
+
     // Update all listeners
-    updateListeners();
+    this.updateListeners();
 
     // Pass the turn before updating the GUI otherwise it will display the wrong person's turn.
-    passTurn();
+    this.passTurn();
 
     // Update GUI
-    game.update();
+    this.game.update();
 
     // Check if game is over/aborted, start the timer if game is in progress, let AI take a move if possible
-    run();
+    this.run();
   }
 
   public void startTimer() {
@@ -95,15 +110,16 @@ public class ReversiEngine implements Runnable {
     this.gameTimer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        if (totalTime <= 0) {
-          pauseTimer();
-          game.setGameState(AbstractGame.GameState.GAVE_OVER);
-          gui.endGamePopup();
+        if (game.getCurrentPlayer().getTimeLeftToPlayInSeconds() <= 0) {
+          // Pass the turn
+          afterMove();
           return;
         }
 
-        totalTime--;
-        System.out.println(totalTime);
+        int time = game.getCurrentPlayer().getTimeLeftToPlayInSeconds();
+        game.getCurrentPlayer().setTimeLeftToPlayInSeconds(--time);
+        game.update();
+        System.out.println(game.getCurrentPlayer().getTimeLeftToPlayInSeconds());
       }
     }, 0, 1000);
   }
@@ -115,11 +131,40 @@ public class ReversiEngine implements Runnable {
   public void passTurn() {
     this.game.switchPlayer();
 
-    // Check if the new player can make a legal move, and pass back turn if they can't
-    if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() == 0) {
+    // Does the new player have time to play?
+    if (this.game.getCurrentPlayer().getTimeLeftToPlayInSeconds() > 0) {
+      // Can the new player make a legal move?
+      if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() > 0) {
+        // Let them play
+      } else {
+        // Can the other player make a legal move?
+        this.game.switchPlayer();
+        if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() > 0) {
+          // Do they have time to play?
+          if (this.game.getCurrentPlayer().getTimeLeftToPlayInSeconds() > 0) {
+            // Let them play
+          } else {
+            // End Game
+            this.game.setGameState(AbstractGame.GameState.GAVE_OVER);
+          }
+        } else {
+          // End Game
+          this.game.setGameState(AbstractGame.GameState.GAVE_OVER);
+        }
+      }
+    } else {
+      // Does the other player have time to play?
       this.game.switchPlayer();
-      if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() == 0) {
-        // End game if both players cannot make a legal move.
+      if (this.game.getCurrentPlayer().getTimeLeftToPlayInSeconds() > 0) {
+        // Can they make a legal move?
+        if (Move.allPossibleMoves(this.game.getBoard(), this.game.getCurrentPlayer().getPlayerColour()).size() > 0) {
+          // Let them play
+        } else {
+          // End Game
+          this.game.setGameState(AbstractGame.GameState.GAVE_OVER);
+        }
+      } else {
+        // End Game
         this.game.setGameState(AbstractGame.GameState.GAVE_OVER);
       }
     }
@@ -173,6 +218,9 @@ public class ReversiEngine implements Runnable {
       try {
         this.game.setGameState(AbstractGame.GameState.ABORTED);
         this.gui.mainWindow.dispose();
+        if (this.game.isTimedGame()) {
+          this.pauseTimer();
+        }
         this.game = null;
         this.gui = null;
         new MainMenu();

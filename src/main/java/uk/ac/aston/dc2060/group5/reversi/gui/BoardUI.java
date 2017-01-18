@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -75,6 +76,7 @@ public class BoardUI implements Observer {
 
   private BoardPanel boardPanel;
   private ScorePanel scorePanel;
+  private TimePanel timePanel;
   private CurrentTurnPanel currentTurnPanel;
 
   private Image bg;
@@ -84,11 +86,13 @@ public class BoardUI implements Observer {
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
   private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
-  private final int GAME_WIDTH = SCREEN_SIZE.height * 4/5;
+  private final int GAME_WIDTH = GAME_HEIGHT * 955/1000;
 
   private AbstractPlayer[] players;
 
   public BoardUI(AbstractGame game) {
+    System.out.println(GAME_HEIGHT);
+    System.out.println(GAME_WIDTH);
     Gson gson = new Gson();
     JsonElement jsonElement = null;
     Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
@@ -131,7 +135,7 @@ public class BoardUI implements Observer {
 
     this.mainWindow = new JFrame("Reversi");
     this.mainWindow.setLayout(new BorderLayout());
-    this.mainWindow.setSize(new Dimension(GAME_HEIGHT, GAME_WIDTH));
+    this.mainWindow.setSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
     this.mainWindow.setJMenuBar(menuBar);
 
     this.boardPanel = new BoardPanel();
@@ -140,6 +144,10 @@ public class BoardUI implements Observer {
     this.scorePanel = new ScorePanel();
     this.scorePanel.setLayout(new GridLayout(0, 1));
     this.mainWindow.add(scorePanel, BorderLayout.EAST);
+
+    this.timePanel = new TimePanel();
+    this.timePanel.setLayout(new GridLayout(1, 0));
+    this.mainWindow.add(timePanel, BorderLayout.NORTH);
 
     this.currentTurnPanel = new CurrentTurnPanel();
     this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
@@ -217,6 +225,9 @@ public class BoardUI implements Observer {
 
     // Update scores
     this.scorePanel.updateScores();
+
+    // Update times
+    this.timePanel.updateTimes();
   }
 
   public class BoardPanel extends JPanel {
@@ -321,18 +332,18 @@ public class BoardUI implements Observer {
           g2.setColor(colour);
         }
         // Fills the circle with solid color
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Adds shadows at the top
         Paint p;
         p = new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 0.4f), 0, getHeight(), new Color(0.0f, 0.0f, 0.0f, 0.0f));
         g2.setPaint(p);
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Adds highlights at the bottom
         p = new GradientPaint(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.0f), 0, getHeight(), new Color(1.0f, 1.0f, 1.0f, 0.4f));
         g2.setPaint(p);
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Creates dark edges for 3D effect
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
@@ -340,7 +351,7 @@ public class BoardUI implements Observer {
             new float[] { 0.0f, 1.0f },
             new Color[] { colour, new Color(0.0f, 0.0f, 0.0f, 0.1f) });
         g2.setPaint(p);
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Adds oval inner highlight at the bottom
         int rTint = colour.getRed() + (255 - colour.getRed()) * 0;
@@ -356,7 +367,7 @@ public class BoardUI implements Observer {
             RadialGradientPaint.ColorSpaceType.SRGB,
             AffineTransform.getScaleInstance(1.0, 0.5));
         g2.setPaint(p);
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Adds oval specular highlight at the top left
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
@@ -366,7 +377,7 @@ public class BoardUI implements Observer {
             new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 1.0f, 0.0f) },
             RadialGradientPaint.CycleMethod.NO_CYCLE);
         g2.setPaint(p);
-        g2.fillOval(1, h/32, w-1, w-1);
+        g2.fillOval(1, 1, w-1, h-1);
 
         // Restores the previous state
         g2.setPaint(oldPaint);
@@ -394,6 +405,69 @@ public class BoardUI implements Observer {
         currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
       }
     }
+
+  private class TimePanel extends JPanel {
+
+    public JPanel p1;
+    public JPanel p2;
+
+    public JLabel p1TimeField;
+    public JLabel p2TimeField;
+
+    private String player1Time;
+    private String player2Time;
+
+    TimePanel() {
+      p1 = new JPanel(new BorderLayout());
+      p2 = new JPanel(new BorderLayout());
+      JLabel p1TimeLabel = new JLabel();
+      JLabel p2TimeLabel = new JLabel();
+      p1TimeField = new JLabel();
+      p2TimeField = new JLabel();
+      p1.add(p1TimeLabel, BorderLayout.NORTH);
+      p1.add(p1TimeField, BorderLayout.CENTER);
+      p2.add(p2TimeLabel, BorderLayout.NORTH);
+      p2.add(p2TimeField, BorderLayout.CENTER);
+      add(p1);
+      add(p2);
+      p1TimeLabel.setText("Player 1 Time");
+      p2TimeLabel.setText("Player 2 Time");
+      p1TimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+      p2TimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
+
+      getTimes();
+
+      p1TimeField.setText(player1Time);
+      p2TimeField.setText(player2Time);
+      p1TimeField.setFont(new Font("Tahoma", Font.PLAIN, SCREEN_SIZE.height * 1/25));
+      p2TimeField.setFont(new Font("Tahoma", Font.PLAIN, SCREEN_SIZE.height * 1/25));
+
+      p1.setBackground(Color.decode("#1d1d1d"));
+      p1TimeLabel.setForeground(Color.decode("#ecf0f1"));
+      p1TimeField.setForeground(Color.decode("#ecf0f1"));
+
+      p2.setBackground(Color.decode("#ecf0f1"));
+      p2TimeLabel.setForeground(Color.decode("#1d1d1d"));
+      p2TimeField.setForeground(Color.decode("#1d1d1d"));
+    }
+
+    private void getTimes() {
+      int player1SecondsLeft = game.getPlayers()[0].getTimeLeftToPlayInSeconds();
+      int player2SecondsLeft = game.getPlayers()[1].getTimeLeftToPlayInSeconds();
+      player1Time = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player1SecondsLeft), TimeUnit.SECONDS.toSeconds(player1SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player1SecondsLeft)));
+      player2Time = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player2SecondsLeft), TimeUnit.SECONDS.toSeconds(player2SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player2SecondsLeft)));
+      if (!game.isTimedGame()) {
+        player1Time = Character.toString('\u221e');
+        player2Time = Character.toString('\u221e');
+      }
+    }
+
+    private void updateTimes() {
+      getTimes();
+      p1TimeField.setText(player1Time);
+      p2TimeField.setText(player2Time);
+    }
+  }
 
   private class ScorePanel extends JPanel {
 
@@ -435,8 +509,8 @@ public class BoardUI implements Observer {
     }
 
     private void updateScores() {
-        p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
-        p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
+      p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+      p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
     }
   }
 
