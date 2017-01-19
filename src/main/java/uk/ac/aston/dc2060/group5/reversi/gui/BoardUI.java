@@ -17,9 +17,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Paint;
@@ -55,6 +57,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 /**
@@ -64,7 +67,7 @@ import javax.swing.WindowConstants;
  */
 public class BoardUI implements Observer {
 
-  private AbstractGame game;
+  public AbstractGame game;
 
   public JFrame mainWindow;
 
@@ -75,8 +78,7 @@ public class BoardUI implements Observer {
   public JMenuItem settingsMenuItem;
 
   private BoardPanel boardPanel;
-  private ScorePanel scorePanel;
-  private TimePanel timePanel;
+  private PlayerInfoPanel infoPanel;
   private CurrentTurnPanel currentTurnPanel;
 
   private Image bg;
@@ -86,13 +88,46 @@ public class BoardUI implements Observer {
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
   private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
-  private final int GAME_WIDTH = GAME_HEIGHT * 955/1000;
+  private final int GAME_WIDTH = GAME_HEIGHT * 86/100;
 
   private AbstractPlayer[] players;
 
   public BoardUI(AbstractGame game) {
-    System.out.println(GAME_HEIGHT);
-    System.out.println(GAME_WIDTH);
+    this.loadTheme();
+
+    this.game = game;
+    this.game.addObserver(this);
+
+    this.mainWindow = new JFrame("Reversi");
+    this.mainWindow.setLayout(new BorderLayout());
+    this.mainWindow.setSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
+    this.mainWindow.setJMenuBar(menuBar);
+
+    this.boardPanel = new BoardPanel();
+    this.mainWindow.add(boardPanel, BorderLayout.CENTER);
+
+    /*this.scorePanel = new ScorePanel();
+    this.scorePanel.setLayout(new GridLayout(0, 1));
+    this.mainWindow.add(scorePanel, BorderLayout.EAST);
+*/
+    /*this.timePanel = new TimePanel();
+    this.timePanel.setLayout(new GridLayout(1, 0));
+    this.mainWindow.add(timePanel, BorderLayout.NORTH);*/
+
+    infoPanel = new PlayerInfoPanel();
+    infoPanel.setLayout(new GridLayout(1, 0));
+    this.mainWindow.add(infoPanel, BorderLayout.NORTH);
+
+    this.currentTurnPanel = new CurrentTurnPanel();
+    this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
+
+    this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    this.mainWindow.setResizable(false);
+    this.mainWindow.setLocationRelativeTo(null);
+    this.mainWindow.setVisible(true);
+  }
+
+  public void loadTheme() {
     Gson gson = new Gson();
     JsonElement jsonElement = null;
     Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
@@ -127,35 +162,9 @@ public class BoardUI implements Observer {
       } catch (final IOException e) {
         e.printStackTrace();
       }
+    } else {
+      this.bg = null;
     }
-
-    this.game = game;
-    this.game.addObserver(this);
-    System.out.println(this.game.getBoard().toString());
-
-    this.mainWindow = new JFrame("Reversi");
-    this.mainWindow.setLayout(new BorderLayout());
-    this.mainWindow.setSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
-    this.mainWindow.setJMenuBar(menuBar);
-
-    this.boardPanel = new BoardPanel();
-    this.mainWindow.add(boardPanel, BorderLayout.CENTER);
-
-    this.scorePanel = new ScorePanel();
-    this.scorePanel.setLayout(new GridLayout(0, 1));
-    this.mainWindow.add(scorePanel, BorderLayout.EAST);
-
-    this.timePanel = new TimePanel();
-    this.timePanel.setLayout(new GridLayout(1, 0));
-    this.mainWindow.add(timePanel, BorderLayout.NORTH);
-
-    this.currentTurnPanel = new CurrentTurnPanel();
-    this.mainWindow.add(currentTurnPanel, BorderLayout.SOUTH);
-
-    this.mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    this.mainWindow.setResizable(false);
-    this.mainWindow.setLocationRelativeTo(null);
-    this.mainWindow.setVisible(true);
   }
 
   public void endGamePopup() {
@@ -217,17 +226,13 @@ public class BoardUI implements Observer {
   @Override
   public void update(Observable o, Object arg) {
     // Redraw board
-    boardPanel.revalidate();
     boardPanel.repaint();
 
     // Update turn
-    this.currentTurnPanel.updatePlayer();
+    this.currentTurnPanel.repaint();
 
-    // Update scores
-    this.scorePanel.updateScores();
-
-    // Update times
-    this.timePanel.updateTimes();
+    // Update time and scores
+    this.infoPanel.repaint();
   }
 
   public class BoardPanel extends JPanel {
@@ -237,21 +242,33 @@ public class BoardUI implements Observer {
     BoardPanel() {
       super(new GridLayout(8, 8));
 
-      // Default background
-      if (theme.getBgColour() != null && !theme.getBgColour().isEmpty()) {
-        this.setBackground(Color.decode(theme.getBgColour()));
-      }
-
       this.boardTiles = new ArrayList<TilePanel>();
-      int row = 0;
+
       for (int i = 0; i < 64; i++) {
         final TilePanel tilePanel = new TilePanel(this, i);
         this.boardTiles.add(tilePanel);
+        add(tilePanel);
+      }
 
+      this.validate();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      Graphics2D g2 = (Graphics2D) g;
+      super.paintComponent(g2);
+      if (bg != null) {
+        g2.drawImage(bg, 0, 0, null);
+      } else {
+        this.setBackground(Color.decode(theme.getBgColour()));
+      }
+
+      int row = 0;
+      int i = 0;
+      for (TilePanel tilePanel : boardTiles) {
         if (i % 8 == 0 && i != 0) {
           row++;
         }
-
         Settings.Opacity opacity = theme.getOpacity()[0];
         if (row % 2 == 0) {
           if (i % 2 == 0) {
@@ -266,17 +283,7 @@ public class BoardUI implements Observer {
             tilePanel.setBackground(new Color(0, 0, 0, opacity.getLight()));
           }
         }
-        add(tilePanel);
-      }
-
-      this.validate();
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
-      if (bg != null) {
-        g.drawImage(bg, 0, 0, null);
+        i++;
       }
     }
 
@@ -304,22 +311,19 @@ public class BoardUI implements Observer {
     }
 
     protected void paintComponent(Graphics g) {
-      g.setColor(getBackground());
-      Rectangle r = g.getClipBounds();
-      g.fillRect(r.x, r.y, r.width, r.height);
+      Graphics2D g2 = (Graphics2D) g;
+      g2.setColor(getBackground());
+      Rectangle r = g2.getClipBounds();
+      g2.fillRect(r.x, r.y, r.width, r.height);
 
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
         int h = getHeight();
         int w = getWidth();
 
-        Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Retain old paint
-        Paint oldPaint = g2.getPaint();
         Color colour;
-
         // Fill circle with solid colour - Black or White
         Settings.PieceColours pieceColours = theme.getPieceColours()[0];
         if (pieceColour.equals(PieceColour.BLACK)) {
@@ -349,7 +353,7 @@ public class BoardUI implements Observer {
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 2.0f,
             new float[] { 0.0f, 1.0f },
-            new Color[] { colour, new Color(0.0f, 0.0f, 0.0f, 0.1f) });
+            new Color[] { new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), 1/2), new Color(0.0f, 0.0f, 0.0f, 0.1f) });
         g2.setPaint(p);
         g2.fillOval(1, 1, w-1, h-1);
 
@@ -379,17 +383,13 @@ public class BoardUI implements Observer {
         g2.setPaint(p);
         g2.fillOval(1, 1, w-1, h-1);
 
-        // Restores the previous state
-        g2.setPaint(oldPaint);
         super.paintComponent(g2);
       } else {
-        super.paintComponent(g);
+        super.paintComponent(g2);
       }
     }
 
   }
-
-
 
   private class CurrentTurnPanel extends JPanel {
     JLabel currentTurnLabel;
@@ -398,119 +398,163 @@ public class BoardUI implements Observer {
       super(new FlowLayout());
       this.currentTurnLabel = new JLabel();
       add(currentTurnLabel);
+    }
+
+    private void setLabelText() {
+      currentTurnLabel.setText("Current Player");
+    }
+
+    private void setColours() {
+      Color black = Color.decode(theme.getPieceColours()[0].getBlack());
+      Color white = Color.decode(theme.getPieceColours()[0].getWhite());
+      if (game.getCurrentPlayer().getPlayerColour().equals(PieceColour.BLACK)) {
+        this.setBackground(black);
+        currentTurnLabel.setForeground(white);
+      } else {
+        this.setBackground(white);
+        currentTurnLabel.setForeground(black);
+      }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+      setColours();
+      setLabelText();
+    }
+
+    private void updatePlayer() {
       currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
-      }
-
-      private void updatePlayer() {
-        currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
-      }
-    }
-
-  private class TimePanel extends JPanel {
-
-    public JPanel p1;
-    public JPanel p2;
-
-    public JLabel p1TimeField;
-    public JLabel p2TimeField;
-
-    private String player1Time;
-    private String player2Time;
-
-    TimePanel() {
-      p1 = new JPanel(new BorderLayout());
-      p2 = new JPanel(new BorderLayout());
-      JLabel p1TimeLabel = new JLabel();
-      JLabel p2TimeLabel = new JLabel();
-      p1TimeField = new JLabel();
-      p2TimeField = new JLabel();
-      p1.add(p1TimeLabel, BorderLayout.NORTH);
-      p1.add(p1TimeField, BorderLayout.CENTER);
-      p2.add(p2TimeLabel, BorderLayout.NORTH);
-      p2.add(p2TimeField, BorderLayout.CENTER);
-      add(p1);
-      add(p2);
-      p1TimeLabel.setText("Player 1 Time");
-      p2TimeLabel.setText("Player 2 Time");
-      p1TimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-      p2TimeLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-
-      getTimes();
-
-      p1TimeField.setText(player1Time);
-      p2TimeField.setText(player2Time);
-      p1TimeField.setFont(new Font("Tahoma", Font.PLAIN, SCREEN_SIZE.height * 1/25));
-      p2TimeField.setFont(new Font("Tahoma", Font.PLAIN, SCREEN_SIZE.height * 1/25));
-
-      p1.setBackground(Color.decode("#1d1d1d"));
-      p1TimeLabel.setForeground(Color.decode("#ecf0f1"));
-      p1TimeField.setForeground(Color.decode("#ecf0f1"));
-
-      p2.setBackground(Color.decode("#ecf0f1"));
-      p2TimeLabel.setForeground(Color.decode("#1d1d1d"));
-      p2TimeField.setForeground(Color.decode("#1d1d1d"));
-    }
-
-    private void getTimes() {
-      int player1SecondsLeft = game.getPlayers()[0].getTimeLeftToPlayInSeconds();
-      int player2SecondsLeft = game.getPlayers()[1].getTimeLeftToPlayInSeconds();
-      player1Time = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player1SecondsLeft), TimeUnit.SECONDS.toSeconds(player1SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player1SecondsLeft)));
-      player2Time = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player2SecondsLeft), TimeUnit.SECONDS.toSeconds(player2SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player2SecondsLeft)));
-      if (!game.isTimedGame()) {
-        player1Time = Character.toString('\u221e');
-        player2Time = Character.toString('\u221e');
-      }
-    }
-
-    private void updateTimes() {
-      getTimes();
-      p1TimeField.setText(player1Time);
-      p2TimeField.setText(player2Time);
     }
   }
 
-  private class ScorePanel extends JPanel {
+  private class PlayerInfoPanel extends JPanel {
+    private JPanel panel1;
+    private JPanel panel2;
 
-    public JPanel p1;
-    public JPanel p2;
+    private JLabel player1Icon;
+    private JLabel player2Icon;
+    private JLabel player1TimeIcon;
+    private JLabel player2TimeIcon;
+    private JLabel player1ScoreLabel;
+    private JLabel player2ScoreLabel;
+    private JLabel player1TimeLabel;
+    private JLabel player2TimeLabel;
 
-    public JLabel p1ScoreField;
-    public JLabel p2ScoreField;
+    private Font customFont;
+    private Font standardFont;
 
-    ScorePanel() {
-      p1 = new JPanel(new BorderLayout());
-      p2 = new JPanel(new BorderLayout());
-      JLabel p1ScoreLabel = new JLabel();
-      JLabel p2ScoreLabel = new JLabel();
-      p1ScoreField = new JLabel();
-      p2ScoreField = new JLabel();
-      p1.add(p1ScoreLabel, BorderLayout.NORTH);
-      p1.add(p1ScoreField, BorderLayout.CENTER);
-      p2.add(p2ScoreLabel, BorderLayout.NORTH);
-      p2.add(p2ScoreField, BorderLayout.CENTER);
-      add(p1);
-      add(p2);
-      p1ScoreLabel.setText("Player 1       ");
-      p2ScoreLabel.setText("Player 2");
-      p1ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-      p2ScoreLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-      p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
-      p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
-      p1ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
-      p2ScoreField.setFont(new Font("Tahoma", Font.PLAIN, 100));
+    public PlayerInfoPanel() {
+      createPlayerPanels();
+      createLabels();
+      setColours();
+      registerFont();
+      setLabelFont();
+      setScoreLabelText();
+      setTimeLabelText();
 
-      p1.setBackground(Color.decode("#1d1d1d"));
-      p1ScoreLabel.setForeground(Color.decode("#ecf0f1"));
-      p1ScoreField.setForeground(Color.decode("#ecf0f1"));
+      panel1.add(player1Icon);
+      panel1.add(player1ScoreLabel);
+      panel1.add(player1TimeIcon);
+      panel1.add(player1TimeLabel);
 
-      p2.setBackground(Color.decode("#ecf0f1"));
-      p2ScoreLabel.setForeground(Color.decode("#1d1d1d"));
-      p2ScoreField.setForeground(Color.decode("#1d1d1d"));
+      panel2.add(player2Icon);
+      panel2.add(player2ScoreLabel);
+      panel2.add(player2TimeIcon);
+      panel2.add(player2TimeLabel);
+
+      add(panel1);
+      add(panel2);
     }
 
-    private void updateScores() {
-      p1ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
-      p2ScoreField.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
+    @Override
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+      setColours();
+      setScoreLabelText();
+      setTimeLabelText();
+    }
+
+    private void createPlayerPanels() {
+      panel1 = new JPanel(new GridLayout(1, 4));
+      panel2 = new JPanel(new GridLayout(1, 4));
+    }
+
+    private void createLabels() {
+      player1Icon = new JLabel("", SwingConstants.CENTER);
+      player1ScoreLabel = new JLabel();
+      player1TimeIcon = new JLabel("", SwingConstants.RIGHT);
+      player1TimeLabel = new JLabel("", SwingConstants.CENTER);
+
+      player2Icon = new JLabel("", SwingConstants.CENTER);
+      player2ScoreLabel = new JLabel();
+      player2TimeIcon = new JLabel("", SwingConstants.RIGHT);
+      player2TimeLabel = new JLabel("", SwingConstants.CENTER);
+    }
+
+    private void setColours() {
+      Color black = Color.decode(theme.getPieceColours()[0].getBlack());
+      Color white = Color.decode(theme.getPieceColours()[0].getWhite());
+
+      panel1.setBackground(black);
+      player1Icon.setForeground(white);
+      player1ScoreLabel.setForeground(white);
+      player1TimeIcon.setForeground(white);
+      player1TimeLabel.setForeground(white);
+
+      panel2.setBackground(white);
+      player2Icon.setForeground(black);
+      player2ScoreLabel.setForeground(black);
+      player2TimeIcon.setForeground(black);
+      player2TimeLabel.setForeground(black);
+    }
+
+    private void registerFont() {
+      try {
+        customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/fontawesome-webfont.ttf"));
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(customFont);
+        customFont = new Font(customFont.getName(), Font.PLAIN, GAME_HEIGHT * 5/100);
+        standardFont = new Font("Tahoma", Font.PLAIN, GAME_HEIGHT * 4/100);
+      } catch (IOException | FontFormatException e) {
+        e.printStackTrace();
+      }
+    }
+
+    private void setLabelFont() {
+      player1Icon.setFont(customFont);
+      player1ScoreLabel.setFont(standardFont);
+      player1TimeIcon.setFont(customFont);
+      player1TimeLabel.setFont(standardFont);
+
+      player2Icon.setFont(customFont);
+      player2ScoreLabel.setFont(standardFont);
+      player2TimeIcon.setFont(customFont);
+      player2TimeLabel.setFont(standardFont);
+    }
+
+    private void setScoreLabelText() {
+      player1Icon.setText("\uF2C0");
+      player1ScoreLabel.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.BLACK)));
+      player2Icon.setText("\uF2C0");
+      player2ScoreLabel.setText(Integer.toString(game.getBoard().getPieceCount(PieceColour.WHITE)));
+    }
+
+    private void setTimeLabelText() {
+      int player1SecondsLeft = game.getPlayers()[0].getTimeLeftToPlayInSeconds();
+      int player2SecondsLeft = game.getPlayers()[1].getTimeLeftToPlayInSeconds();
+
+      String s1 = Character.toString('\u221e');
+      String s2 = Character.toString('\u221e');
+      if (game.isTimedGame()) {
+        s1 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player1SecondsLeft), TimeUnit.SECONDS.toSeconds(player1SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player1SecondsLeft)));
+        s2 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player2SecondsLeft), TimeUnit.SECONDS.toSeconds(player2SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player2SecondsLeft)));
+      }
+
+      player1TimeIcon.setText("\uF252");
+      player1TimeLabel.setText(s1);
+      player2TimeIcon.setText("\uF252");
+      player2TimeLabel.setText(s2);
     }
   }
 

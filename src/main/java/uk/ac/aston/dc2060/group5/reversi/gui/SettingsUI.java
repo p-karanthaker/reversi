@@ -122,29 +122,31 @@ public class SettingsUI extends JFrame {
         Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
 
         //Custom button text
-        Object[] options = { "OK" };
+        Object[] options = { "Apply", "Cancel" };
         int n = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
-            "The new themes will be available in your next game.",
+            "Confirm to apply theme.",
             "Apply Changes",
-            JOptionPane.YES_OPTION,
+            JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
-            null,
-            options,
-            options[0]);
+                  null,
+                  options,
+                  options[0]);
 
         switch(n) {
           case (JOptionPane.YES_OPTION):
-          default:
-            try {
-              FileWriter fileWriter = new FileWriter(configPath.toFile());
+            try (FileWriter fileWriter = new FileWriter(configPath.toFile())){
               fileWriter.write(theme.toString());
-              fileWriter.close();
-              frame.dispose();
             } catch (IOException e) {
               e.printStackTrace();
             } finally {
-              //System.exit(0);
+              frame.dispose();
+              boardUI.loadTheme();
+              boardUI.game.update();
             }
+            break;
+          case (JOptionPane.NO_OPTION):
+          default:
+            frame.dispose();
             break;
         }
       }

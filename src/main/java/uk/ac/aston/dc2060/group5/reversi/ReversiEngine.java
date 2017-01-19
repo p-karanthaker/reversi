@@ -41,6 +41,7 @@ public class ReversiEngine implements Runnable {
 
   @Override
   public void run() {
+    System.out.println(this.game.getBoard());
     // Check if game is aborted.
     if (this.game.getGameState().equals(AbstractGame.GameState.ABORTED)) {
       Thread.currentThread().interrupt();
@@ -85,8 +86,6 @@ public class ReversiEngine implements Runnable {
   }
 
   public void afterMove() {
-    System.out.println(this.game.getBoard());
-
     if (this.game.isTimedGame()) {
       // Pause timer first
       this.pauseTimer();
@@ -119,7 +118,6 @@ public class ReversiEngine implements Runnable {
         int time = game.getCurrentPlayer().getTimeLeftToPlayInSeconds();
         game.getCurrentPlayer().setTimeLeftToPlayInSeconds(--time);
         game.update();
-        System.out.println(game.getCurrentPlayer().getTimeLeftToPlayInSeconds());
       }
     }, 0, 1000);
   }
@@ -193,10 +191,7 @@ public class ReversiEngine implements Runnable {
                 // Only allow mouse clicks for HumanPlayer types.
                 if (game.getCurrentPlayer() instanceof HumanPlayer) {
                   if (game.getCurrentPlayer().takeTurn(game, ((BoardUI.TilePanel) e.getSource()).getTileId())) {
-                    System.out.println("Added piece to tile: " + (((BoardUI.TilePanel) e.getSource()).getTileId()));
                     afterMove();
-                  } else {
-                    System.out.println("Failed to add piece to tile.");
                   }
                 }
                 return null;
