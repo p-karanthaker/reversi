@@ -14,14 +14,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 /**
- * Created by Maryam on 22/11/2016.
+ * Created by Maryam on 17/01/2017.
  */
-public class MainMenu extends JFrame{
+public class NewGameMenu extends JFrame {
 
     // Allows us to create a suitable size window for any screen resolution.
     private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
@@ -29,9 +28,9 @@ public class MainMenu extends JFrame{
     private final int MENU_HEIGHT = SCREEN_SIZE.height * 4/5;
     private final int MENU_WIDTH = SCREEN_SIZE.width * 1/3;
 
-    public MainMenu() throws IOException {
+    public NewGameMenu() throws IOException {
         //Create main window and set exit on close
-        JFrame frame = new JFrame("Reversi Main Menu");
+        JFrame frame = new JFrame("New Game Menu");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setPreferredSize(new Dimension(MENU_WIDTH, MENU_HEIGHT));
         frame.setLayout(new GridLayout(0, 1));
@@ -50,7 +49,7 @@ public class MainMenu extends JFrame{
         ImageIcon image = null;
         try {
             image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
-                .getImage().getScaledInstance(MENU_WIDTH, MENU_HEIGHT, Image.SCALE_SMOOTH));
+                    .getImage().getScaledInstance(MENU_WIDTH, MENU_HEIGHT, Image.SCALE_SMOOTH));
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -62,11 +61,12 @@ public class MainMenu extends JFrame{
         panel.setBounds(0, -5, MENU_WIDTH, MENU_HEIGHT);
         panel.add(background);
 
-        //MainMenu, NewGameMenu, ClassicMenu and AntiReversiMenu options
-        JButton buttonNewGame = new JButton("New Game");
-        JButton buttonDemo = new JButton("Demo");
-        JButton buttonInstructions = new JButton("Instructions");
+        //MainMenu options
+
+        JButton buttonClassic = new JButton("Classic Game");
+        JButton buttonAntiReversi = new JButton("AntiReversi Game");
         JButton exit = new JButton("Exit");
+        JButton buttonBack = new JButton("Back");
 
 
         //Actions when button clicked
@@ -76,33 +76,37 @@ public class MainMenu extends JFrame{
             }
         });
 
-        buttonNewGame.addActionListener(new ActionListener() {
+        buttonClassic.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    NewGameMenu newGameMenu = new NewGameMenu();
+                    ClassicMenu classicMenu = new ClassicMenu();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+        buttonAntiReversi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    AntiReversiMenu antiReversiMenu = new AntiReversiMenu();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+        buttonBack.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    MainMenu mainMenu = new MainMenu();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
 
-            }
-        });
-
-
-
-        buttonDemo.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            AbstractGame game = new ClassicGame(GameType.DEMO, false);
-            new ReversiEngine(game, new BoardUI(game));
-            frame.dispose();
-          }
-        });
-
-        buttonInstructions.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new RulesUI();
             }
         });
 
@@ -116,10 +120,10 @@ public class MainMenu extends JFrame{
         panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
 
         panel2.setOpaque(false);
-        panel2.add(buttonNewGame);
-        panel2.add(buttonDemo);
-        panel2.add(buttonInstructions);
+        panel2.add(buttonClassic);
+        panel2.add(buttonAntiReversi);
         panel2.add(exit);
+        panel2.add(buttonBack);
 
         JLayeredPane master = new JLayeredPane();
         master.add(panel, new Integer(0), 0);
@@ -130,4 +134,6 @@ public class MainMenu extends JFrame{
         //Display
         frame.pack();
     }
+
+
 }
