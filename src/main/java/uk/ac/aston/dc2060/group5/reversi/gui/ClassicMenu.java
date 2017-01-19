@@ -86,8 +86,17 @@ public class ClassicMenu extends JFrame {
     JButton exit = createButtons("Exit");
     JButton buttonBack = createButtons("Back");
 
+    buttonPvP.setToolTipText("Play against a friend.");
+    buttonPvC.setToolTipText("Play against the AI.");
+    exit.setToolTipText("Exit Reversi");
+    buttonBack.setToolTipText("Go back to the previous menu.");
+
     JCheckBox checkBoxHardDifficulty = createCheckBox("Hard AI?");
     JCheckBox checkBoxTimedGame = createCheckBox("Timer?");
+
+    checkBoxHardDifficulty.setToolTipText("Challenge the AI on hard mode.");
+    checkBoxTimedGame.setToolTipText("You can't move if you run out of time!");
+
     JPanel checkboxPanel = new JPanel();
     checkboxPanel.setLayout(new GridLayout(1, 2));
     checkboxPanel.add(checkBoxHardDifficulty);

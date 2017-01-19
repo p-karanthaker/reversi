@@ -77,6 +77,12 @@ public class MainMenu extends JFrame {
     JButton buttonInstructions = createButtons("Instructions");
     JButton exit = createButtons("Exit");
 
+    buttonClassic.setToolTipText("Play to end up with the MOST number of pieces.");
+    buttonAntiReversi.setToolTipText("Play to end up with the LEAST number of pieces.");
+    buttonDemo.setToolTipText("Watch the AI battle it out against itself.");
+    buttonInstructions.setToolTipText("Learn how to play Reversi.");
+    exit.setToolTipText("Exit Reversi.");
+
 
     //Actions when button clicked
     exit.addActionListener(new ActionListener() {
