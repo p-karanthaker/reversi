@@ -81,6 +81,8 @@ public class NewGameMenu extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     ClassicMenu classicMenu = new ClassicMenu();
+                    frame.dispose();
+
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -92,6 +94,7 @@ public class NewGameMenu extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     AntiReversiMenu antiReversiMenu = new AntiReversiMenu();
+                    frame.dispose();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

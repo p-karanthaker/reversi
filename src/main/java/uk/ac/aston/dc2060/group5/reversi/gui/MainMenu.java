@@ -81,6 +81,7 @@ public class MainMenu extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 try {
                     NewGameMenu newGameMenu = new NewGameMenu();
+                    frame.dispose();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

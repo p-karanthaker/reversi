@@ -96,6 +96,7 @@ public class AntiReversiMenu {
             public void actionPerformed(ActionEvent e) {
                 try {
                     MainMenu mainMenu = new MainMenu();
+                    frame.dispose();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
