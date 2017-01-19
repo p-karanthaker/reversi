@@ -122,6 +122,13 @@ public class SettingsUI extends JFrame {
         pieceColoursList.add(pieceColours);
         theme.add("pieceColours", pieceColoursList);
 
+        JsonArray pieceNameList = new JsonArray();
+        JsonObject pieceNames= new JsonObject();
+        pieceNames.addProperty("black", setting.getPieceNames()[0].getBlack());
+        pieceNames.addProperty("white", setting.getPieceNames()[0].getWhite());
+        pieceNameList.add(pieceNames);
+        theme.add("pieceNames", pieceNameList);
+
         Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
 
         //Custom button text

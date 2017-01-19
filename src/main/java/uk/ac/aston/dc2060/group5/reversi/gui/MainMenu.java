@@ -165,7 +165,7 @@ public class MainMenu extends JFrame {
   private JButton createButtons(String buttonText) {
     JButton button = new JButton(buttonText);
     button.setFocusPainted(false);
-    button.setOpaque(false);
+    button.setOpaque(true);
     button.setContentAreaFilled(false);
     button.setForeground(Color.WHITE);
     button.setFont(registerFont());

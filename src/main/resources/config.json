@@ -9,5 +9,9 @@
   "pieceColours": [{
     "black": "#000000",
     "white": "#FFFFFF"
+  }],
+  "pieceNames": [{
+    "black": "Black",
+    "white": "White"
   }]
 }

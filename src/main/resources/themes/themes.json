@@ -9,6 +9,10 @@
   "pieceColours": [{
     "black": "#000000",
     "white": "#FFFFFF"
+  }],
+  "pieceNames": [{
+    "black": "Black",
+    "white": "White"
   }]
 }, {
   "name": "Bubblegum",
@@ -21,6 +25,10 @@
   "pieceColours": [{
     "black": "#C2476E",
     "white": "#FFFFFF"
+  }],
+  "pieceNames": [{
+    "black": "Raspberry",
+    "white": "Vanilla"
   }]
 }, {
   "name": "Sky",
@@ -33,6 +41,10 @@
   "pieceColours": [{
     "black": "#4F9CBE",
     "white": "#FFFFFF"
+  }],
+  "pieceNames": [{
+    "black": "Sky",
+    "white": "Cloud"
   }]
 }, {
   "name": "Space",
@@ -45,6 +57,10 @@
   "pieceColours": [{
     "black": "#5800D0",
     "white": "#FFFFFF"
+  }],
+  "pieceNames": [{
+    "black": "Nebula",
+    "white": "White Dwarf"
   }]
 }, {
   "name": "Wood",
@@ -57,5 +73,9 @@
   "pieceColours": [{
     "black": "#272220",
     "white": "#F8E4CE"
+  }],
+  "pieceNames": [{
+    "black": "Ebony",
+    "white": "Maple"
   }]
 }]

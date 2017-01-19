@@ -178,7 +178,11 @@ public class BoardUI implements Observer {
     if (winner == null) {
       popupMessageText = "The game was a tie!";
     } else {
-      popupMessageText = winner.getLongName() + " Wins!";
+      if (winner.equals(PieceColour.BLACK)) {
+        popupMessageText = theme.getPieceNames()[0].getBlack() + " Wins!";
+      } else {
+        popupMessageText = theme.getPieceNames()[0].getWhite() + " Wins!";
+      }
     }
 
     optionPicked = JOptionPane.showOptionDialog(mainWindow,
@@ -405,7 +409,8 @@ public class BoardUI implements Observer {
     }
 
     private void setLabelText() {
-      currentTurnLabel.setText("Current Player");
+      String colour = game.getCurrentPlayer().getPlayerColour().equals(PieceColour.BLACK) ? theme.getPieceNames()[0].getBlack() : theme.getPieceNames()[0].getWhite();
+      currentTurnLabel.setText("Current Player: " + colour);
     }
 
     private void setColours() {
@@ -425,10 +430,6 @@ public class BoardUI implements Observer {
       super.paintComponent(g);
       setColours();
       setLabelText();
-    }
-
-    private void updatePlayer() {
-      currentTurnLabel.setText("Current player: " + game.getCurrentPlayer().getPlayerColour());
     }
   }
 

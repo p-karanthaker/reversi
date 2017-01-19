@@ -1,5 +1,7 @@
 package uk.ac.aston.dc2060.group5.reversi;
 
+import uk.ac.aston.dc2060.group5.reversi.model.Piece;
+
 /**
  * Created by Sam on 09/10/2016.
  */
@@ -14,6 +16,8 @@ public class Settings {
   private Opacity[] opacity;
 
   private PieceColours[] pieceColours;
+
+  private PieceColours[] pieceNames;
 
   public void setName(String name) {
     this.name = name;
@@ -53,6 +57,10 @@ public class Settings {
 
   public PieceColours[] getPieceColours() {
     return this.pieceColours;
+  }
+
+  public PieceColours[] getPieceNames() {
+    return this.pieceNames;
   }
 
   public class Opacity {
