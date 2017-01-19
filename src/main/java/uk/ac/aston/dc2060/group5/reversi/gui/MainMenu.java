@@ -63,7 +63,8 @@ public class MainMenu extends JFrame{
         panel.add(background);
 
         //MainMenu, NewGameMenu, ClassicMenu and AntiReversiMenu options
-        JButton buttonNewGame = new JButton("New Game");
+        JButton buttonClassic = new JButton("Classic Game");
+        JButton buttonAntiReversi = new JButton("AntiReversi Game");
         JButton buttonDemo = new JButton("Demo");
         JButton buttonInstructions = new JButton("Instructions");
         JButton exit = new JButton("Exit");
@@ -76,16 +77,29 @@ public class MainMenu extends JFrame{
             }
         });
 
-        buttonNewGame.addActionListener(new ActionListener() {
+
+        buttonClassic.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    NewGameMenu newGameMenu = new NewGameMenu();
+                    ClassicMenu classicMenu = new ClassicMenu();
+                    frame.dispose();
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
+        buttonAntiReversi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    AntiReversiMenu antiReversiMenu = new AntiReversiMenu();
                     frame.dispose();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-
             }
         });
 
@@ -117,7 +131,8 @@ public class MainMenu extends JFrame{
         panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
 
         panel2.setOpaque(false);
-        panel2.add(buttonNewGame);
+        panel2.add(buttonClassic);
+        panel2.add(buttonAntiReversi);
         panel2.add(buttonDemo);
         panel2.add(buttonInstructions);
         panel2.add(exit);
