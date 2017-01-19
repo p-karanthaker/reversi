@@ -22,6 +22,7 @@ public abstract class AbstractGame extends Observable {
   private boolean hardDifficulty;
   private boolean timedGame;
   private int currentPlayer;
+  private int totalTimePerPlayerInSeconds = 1;
 
   public AbstractGame(GameType gameType, boolean hardDifficulty) {
     this.players = new AbstractPlayer[2];
@@ -34,7 +35,7 @@ public abstract class AbstractGame extends Observable {
     if (this.gameType.equals(GameType.PVP)) {
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
       this.players[1] = new HumanPlayer(Piece.PieceColour.WHITE);
-    } else if (this.gameType.equals(GameType.PVC)){
+    } else if (this.gameType.equals(GameType.PVC)) {
       this.players[0] = new HumanPlayer(Piece.PieceColour.BLACK);
       this.players[1] = new CPUPlayer(Piece.PieceColour.WHITE, hardDifficulty);
     } else if (this.gameType.equals(GameType.DEMO)) {
@@ -52,6 +53,7 @@ public abstract class AbstractGame extends Observable {
   public AbstractGame(GameType gameType, boolean hardDifficulty, int totalTimePerPlayerInSeconds) {
     this(gameType, hardDifficulty);
     this.timedGame = true;
+    this.totalTimePerPlayerInSeconds = totalTimePerPlayerInSeconds;
     this.players[0].setTimeLeftToPlayInSeconds(totalTimePerPlayerInSeconds);
     this.players[1].setTimeLeftToPlayInSeconds(totalTimePerPlayerInSeconds);
   }
@@ -65,6 +67,7 @@ public abstract class AbstractGame extends Observable {
 
   /**
    * Retrieves the current player from the player array.
+   *
    * @return the current player.
    */
   public AbstractPlayer getCurrentPlayer() {
@@ -99,11 +102,12 @@ public abstract class AbstractGame extends Observable {
     return this.timedGame;
   }
 
+  public int getTotalTimePerPlayerInSeconds() {
+    return this.totalTimePerPlayerInSeconds;
+  }
+
   public boolean isGameOver() {
-    if (this.gameState.equals(GameState.GAVE_OVER)) {
-      return true;
-    }
-    return false;
+    return this.gameState.equals(GameState.GAVE_OVER);
   }
 
   public abstract Piece.PieceColour determineWinner();
@@ -125,7 +129,7 @@ public abstract class AbstractGame extends Observable {
   }
 
   public enum GameState {
-    IN_PROGRESS, GAVE_OVER, ABORTED;
+    IN_PROGRESS, GAVE_OVER, ABORTED
   }
 
 }

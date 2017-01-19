@@ -31,8 +31,8 @@ public class RulesUI extends JFrame {
   // Allows us to create a suitable size window for any screen resolution.
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
-  private final int HEIGHT = SCREEN_SIZE.height * 1/2;
-  private final int WIDTH = SCREEN_SIZE.width * 1/3;
+  private final int HEIGHT = SCREEN_SIZE.height * 1 / 2;
+  private final int WIDTH = SCREEN_SIZE.width * 1 / 3;
 
   public RulesUI() {
     //Create main window and set exit on close
@@ -78,7 +78,7 @@ public class RulesUI extends JFrame {
     }
 
     JPanel panel = new JPanel();
-    panel.setLayout(new GridLayout(1,1));
+    panel.setLayout(new GridLayout(1, 1));
     panel.add(tabbedPane);
     return panel;
   }
@@ -91,11 +91,11 @@ public class RulesUI extends JFrame {
     textArea.setEditable(false);
     textArea.setWrapStyleWord(true);
 
-    JScrollPane scroll = new JScrollPane (textArea,
+    JScrollPane scroll = new JScrollPane(textArea,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
     panel.add(scroll);
-    
+
     JLabel image = new JLabel(imageIcon);
 
     if (imageIcon != null) {

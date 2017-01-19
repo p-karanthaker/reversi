@@ -87,8 +87,8 @@ public class BoardUI implements Observer {
   // Allows us to create a suitable size window for any screen resolution.
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
-  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4/5;
-  private final int GAME_WIDTH = GAME_HEIGHT * 86/100;
+  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4 / 5;
+  private final int GAME_WIDTH = GAME_HEIGHT * 86 / 100;
 
   private AbstractPlayer[] players;
 
@@ -168,7 +168,7 @@ public class BoardUI implements Observer {
   }
 
   public void endGamePopup() {
-    Object[] options = { "Play Again?", "Main Menu", "Exit" };
+    Object[] options = {"Play Again?", "Main Menu", "Exit"};
     // Determine winner
     int optionPicked = 0;
     String popupMessageText = null;
@@ -196,9 +196,13 @@ public class BoardUI implements Observer {
         this.mainWindow.dispose();
         AbstractGame newGame;
         if (game instanceof ClassicGame) {
-          newGame = new ClassicGame(game.getGameType(), game.getDifficulty());
+          newGame = game.isTimedGame() ?
+              new ClassicGame(game.getGameType(), game.getDifficulty(), game.getTotalTimePerPlayerInSeconds()) :
+              new ClassicGame(game.getGameType(), game.getDifficulty());
         } else {
-          newGame = new AntiReversi(game.getGameType());
+          newGame = game.isTimedGame() ?
+              new AntiReversi(game.getGameType(), game.getTotalTimePerPlayerInSeconds()) :
+              new AntiReversi(game.getGameType());
         }
         new ReversiEngine(newGame, new BoardUI(newGame));
         break;
@@ -336,26 +340,26 @@ public class BoardUI implements Observer {
           g2.setColor(colour);
         }
         // Fills the circle with solid color
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         // Adds shadows at the top
         Paint p;
         p = new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 0.4f), 0, getHeight(), new Color(0.0f, 0.0f, 0.0f, 0.0f));
         g2.setPaint(p);
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         // Adds highlights at the bottom
         p = new GradientPaint(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.0f), 0, getHeight(), new Color(1.0f, 1.0f, 1.0f, 0.4f));
         g2.setPaint(p);
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         // Creates dark edges for 3D effect
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 2.0f,
-            new float[] { 0.0f, 1.0f },
-            new Color[] { new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), 1/2), new Color(0.0f, 0.0f, 0.0f, 0.1f) });
+            new float[]{0.0f, 1.0f},
+            new Color[]{new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), 1 / 2), new Color(0.0f, 0.0f, 0.0f, 0.1f)});
         g2.setPaint(p);
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         // Adds oval inner highlight at the bottom
         int rTint = colour.getRed() + (255 - colour.getRed()) * 0;
@@ -365,23 +369,23 @@ public class BoardUI implements Observer {
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() * 1.5), getWidth() / 2.3f,
             new Point2D.Double(getWidth() / 2.0, getHeight() * 1.75 + 6),
-            new float[] { 0.0f, 0.8f },
-            new Color[] { colour, new Color(rTint, gTint, bTint, 0) },
+            new float[]{0.0f, 0.8f},
+            new Color[]{colour, new Color(rTint, gTint, bTint, 0)},
             RadialGradientPaint.CycleMethod.NO_CYCLE,
             RadialGradientPaint.ColorSpaceType.SRGB,
             AffineTransform.getScaleInstance(1.0, 0.5));
         g2.setPaint(p);
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         // Adds oval specular highlight at the top left
         p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 1.4f,
             new Point2D.Double(45.0, 25.0),
-            new float[] { 0.0f, 0.5f },
-            new Color[] { new Color(1.0f, 1.0f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 1.0f, 0.0f) },
+            new float[]{0.0f, 0.5f},
+            new Color[]{new Color(1.0f, 1.0f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 1.0f, 0.0f)},
             RadialGradientPaint.CycleMethod.NO_CYCLE);
         g2.setPaint(p);
-        g2.fillOval(1, 1, w-1, h-1);
+        g2.fillOval(1, 1, w - 1, h - 1);
 
         super.paintComponent(g2);
       } else {
@@ -514,8 +518,8 @@ public class BoardUI implements Observer {
         customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/fontawesome-webfont.ttf"));
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(customFont);
-        customFont = new Font(customFont.getName(), Font.PLAIN, GAME_HEIGHT * 5/100);
-        standardFont = new Font("Tahoma", Font.PLAIN, GAME_HEIGHT * 4/100);
+        customFont = new Font(customFont.getName(), Font.PLAIN, GAME_HEIGHT * 5 / 100);
+        standardFont = new Font("Tahoma", Font.PLAIN, GAME_HEIGHT * 4 / 100);
       } catch (IOException | FontFormatException e) {
         e.printStackTrace();
       }

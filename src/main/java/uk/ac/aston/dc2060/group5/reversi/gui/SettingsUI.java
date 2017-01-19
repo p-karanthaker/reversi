@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 
 import uk.ac.aston.dc2060.group5.reversi.Settings;
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,8 +37,8 @@ public class SettingsUI extends JFrame {
   // Allows us to create a suitable size window for any screen resolution.
   private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 
-  private final int HEIGHT = SCREEN_SIZE.height * 1/2;
-  private final int WIDTH = SCREEN_SIZE.width * 1/3;
+  private final int HEIGHT = SCREEN_SIZE.height * 1 / 2;
+  private final int WIDTH = SCREEN_SIZE.width * 1 / 3;
 
   private Settings[] setting;
   private BoardUI boardUI;
@@ -47,16 +49,17 @@ public class SettingsUI extends JFrame {
 
     //Create main window and set exit on close
     frame = new JFrame("Settings");
-    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    frame.setPreferredSize(new Dimension(400, 100));
-    frame.setLayout(new FlowLayout());
+    JDialog dialog = new JDialog(frame, "Timer Options", Dialog.ModalityType.APPLICATION_MODAL);
+    dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    dialog.setPreferredSize(new Dimension(400, 100));
+    dialog.setLayout(new FlowLayout());
 
-    frame.add(new JLabel("Theme: "));
-    frame.add(populateList());
-    frame.setResizable(true);
-    frame.pack();
-    frame.setLocationRelativeTo(null);
-    frame.setVisible(true);
+    dialog.add(new JLabel("Theme: "));
+    dialog.add(populateList());
+    dialog.setResizable(true);
+    dialog.pack();
+    dialog.setLocationRelativeTo(null);
+    dialog.setVisible(true);
   }
 
   private JComboBox populateList() {
@@ -122,19 +125,19 @@ public class SettingsUI extends JFrame {
         Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
 
         //Custom button text
-        Object[] options = { "Apply", "Cancel" };
+        Object[] options = {"Apply", "Cancel"};
         int n = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
             "Confirm to apply theme.",
             "Apply Changes",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
-                  null,
-                  options,
-                  options[0]);
+            null,
+            options,
+            options[0]);
 
-        switch(n) {
+        switch (n) {
           case (JOptionPane.YES_OPTION):
-            try (FileWriter fileWriter = new FileWriter(configPath.toFile())){
+            try (FileWriter fileWriter = new FileWriter(configPath.toFile())) {
               fileWriter.write(theme.toString());
             } catch (IOException e) {
               e.printStackTrace();

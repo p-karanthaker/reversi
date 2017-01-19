@@ -53,7 +53,7 @@ public class CPUPlayer extends AbstractPlayer {
   }
 
   public boolean takeTurn(AbstractGame game, int coordinate) {
-      return game.playerTurn(coordinate);
+    return game.playerTurn(coordinate);
   }
 
 
@@ -62,16 +62,13 @@ public class CPUPlayer extends AbstractPlayer {
       if (p.getX() == 0 && p.getY() == 0) {
         takeTurn(game, Board.translatePointToIndex(p));
         return true;
-      }
-      else if (p.getX() == 0 && p.getY() == 7) {
+      } else if (p.getX() == 0 && p.getY() == 7) {
         takeTurn(game, Board.translatePointToIndex(p));
         return true;
-      }
-      else if (p.getX() == 7 && p.getY() == 0) {
+      } else if (p.getX() == 7 && p.getY() == 0) {
         takeTurn(game, Board.translatePointToIndex(p));
         return true;
-      }
-      else if (p.getX() == 7 && p.getY() == 7) {
+      } else if (p.getX() == 7 && p.getY() == 7) {
         takeTurn(game, Board.translatePointToIndex(p));
         return true;
       }
@@ -104,8 +101,7 @@ public class CPUPlayer extends AbstractPlayer {
     // return the original list as no other moves are possible.
     if (moves.isEmpty()) {
       return oldList;
-    }
-    else {
+    } else {
       // Return new list with corner opportunities removed.
       return moves;
     }

@@ -11,6 +11,10 @@ public class AntiReversi extends AbstractGame {
     super(gameType, false);
   }
 
+  public AntiReversi(GameType gameType, int totalTimePerPlayerInSeconds) {
+    super(gameType, false, totalTimePerPlayerInSeconds);
+  }
+
   @Override
   public PieceColour determineWinner() {
     // Black Wins if they have less pieces on the board than White.

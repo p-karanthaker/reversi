@@ -29,7 +29,6 @@ public class Board {
 
   /**
    * Constructor which sets up the board and initialises the grid list and pieces stack.
-   *
    */
   public Board() {
     this.grid = new AbstractTile[8][8];

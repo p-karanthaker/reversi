@@ -11,5 +11,5 @@ public enum GameType {
   PVC,
 
   /* Computer vs Computer */
-  DEMO;
+  DEMO
 }
