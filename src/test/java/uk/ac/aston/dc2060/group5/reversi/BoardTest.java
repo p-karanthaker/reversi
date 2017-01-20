@@ -7,12 +7,12 @@ import junit.framework.TestCase;
  */
 public class BoardTest extends TestCase {
 
-    public void testTestAddingPieceToFullTile() throws Exception {
+  public void testTestAddingPieceToFullTile() throws Exception {
 
-    }
+  }
 
 
-    public void testAddingPieceToEmptyTile() throws Exception {
+  public void testAddingPieceToEmptyTile() throws Exception {
 
-    }
+  }
 }

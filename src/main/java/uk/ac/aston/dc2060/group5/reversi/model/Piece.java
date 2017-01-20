@@ -5,8 +5,8 @@ package uk.ac.aston.dc2060.group5.reversi.model;
  * flipped in order to change it's colour.
  *
  * <p>
- * Created by Dean Sohn
- * Reviewed by Karan Thaker
+ * Created by Dean Sohn.
+ * Reviewed by Karan Thaker.
  * </p>
  */
 public class Piece {
@@ -44,15 +44,6 @@ public class Piece {
     } else {
       this.pieceColour = PieceColour.BLACK;
     }
-  }
-
-  /**
-   * Returns the tileID that the piece is currently placed on (if it is placed).
-   *
-   * @return the tileID that the piece is currently placed on, or null if it is not placed.
-   */
-  public int getTileId() {
-    return 1;
   }
 
   /**

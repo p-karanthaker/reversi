@@ -9,7 +9,13 @@ import java.util.List;
 
 
 /**
+ * This class allows you to check if a certain move is valid on a given board. It also provides the
+ * utility to get a listing of all valid moves for a given piece colour.
+ *
+ * <p>
  * Created by Sam on 19/10/2016.
+ * Reviewed by Karan Thaker.
+ * </p>
  */
 public class Move {
 
@@ -19,7 +25,7 @@ public class Move {
   private static List<AbstractTile> piecesToFlip = new ArrayList<AbstractTile>();
 
   /**
-   * The playing board.
+   * The playing board to check move validity on.
    **/
   private static Board board;
 
@@ -84,6 +90,7 @@ public class Move {
     int nextRow = row + direction.getY();
     int nextCol = col + direction.getX();
 
+    // Condition ensures that the rows and columns do not go out of bounds (8x8 board)
     while (nextCol >= 0 && nextRow >= 0 && nextCol < 8 && nextRow < 8) {
       // Check piece on this tile to determine validity of move.
       AbstractTile tile = board.getTile(nextRow, nextCol);
@@ -126,10 +133,12 @@ public class Move {
   }
 
   /**
-   * Checks if there is a valid move that can be made for a player
+   * Checks if there is a valid move that can be made for a given piece colour.
    *
+   * @param board       the board on which to look for valid moves.
    * @param pieceColour the current player colour so we know which player we are checking has valid
-   *                    moves
+   *                    moves.
+   * @return a list of valid moves in the form of Point objects.
    */
   public static List<Point> allPossibleMoves(Board board, PieceColour pieceColour) {
     Move.board = board;
@@ -158,6 +167,8 @@ public class Move {
 
   /**
    * Defines directions and the translation steps needed to move 1 step in that direction.
+   *
+   * <p>Created by Karan Thaker.</p>
    */
   private enum Direction {
 

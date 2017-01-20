@@ -34,6 +34,9 @@ public class RulesUI extends JFrame {
   private final int HEIGHT = SCREEN_SIZE.height * 1 / 2;
   private final int WIDTH = SCREEN_SIZE.width * 1 / 3;
 
+  /**
+   * Constructs the UI for the rules frame.
+   */
   public RulesUI() {
     //Create main window and set exit on close
     JFrame frame = new JFrame("Reversi Rules");
@@ -57,19 +60,21 @@ public class RulesUI extends JFrame {
       InputStream is = this.getClass().getResourceAsStream("/rules/rules.json");
       Reader reader = new InputStreamReader(is, "UTF-8");
       rules = gson.fromJson(reader, Rules[].class);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
 
 
     for (Rules rule : rules) {
       if (!rule.getImage().isEmpty()) {
         try {
-          InputStream imageStream = this.getClass().getResourceAsStream("/rules/" + rule.getImage());
-          JComponent panel1 = makeRulePanel(rule.getText(), new ImageIcon(ImageIO.read(imageStream)));
+          InputStream imageStream =
+              this.getClass().getResourceAsStream("/rules/" + rule.getImage());
+          JComponent panel1 =
+              makeRulePanel(rule.getText(), new ImageIcon(ImageIO.read(imageStream)));
           tabbedPane.addTab(rule.getTitle(), panel1);
-        } catch (IOException e) {
-
+        } catch (IOException ex) {
+          ex.printStackTrace();
         }
       } else {
         JComponent panel1 = makeRulePanel(rule.getText(), null);

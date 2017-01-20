@@ -37,6 +37,11 @@ public class MainMenu extends JFrame {
   private final int MENU_HEIGHT = SCREEN_SIZE.height * 4 / 5;
   private final int MENU_WIDTH = SCREEN_SIZE.width * 1 / 3;
 
+  /**
+   * Constructs the main menu screen.
+   *
+   * @throws IOException if unable to load background image.
+   */
   public MainMenu() throws IOException {
     //Create main window and set exit on close
     JFrame frame = new JFrame("Reversi Main Menu");
@@ -59,8 +64,8 @@ public class MainMenu extends JFrame {
     try {
       image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
           .getImage().getScaledInstance(MENU_WIDTH, MENU_HEIGHT, Image.SCALE_SMOOTH));
-    } catch (final IOException e) {
-      e.printStackTrace();
+    } catch (final IOException ex) {
+      ex.printStackTrace();
     }
 
     JLabel background = new JLabel(image);
@@ -71,11 +76,11 @@ public class MainMenu extends JFrame {
     panel.add(background);
 
     //MainMenu, NewGameMenu, ClassicMenu and AntiReversiMenu options
-    JButton buttonClassic = createButtons("Classic");
-    JButton buttonAntiReversi = createButtons("AntiReversi");
-    JButton buttonDemo = createButtons("Demo");
-    JButton buttonInstructions = createButtons("Instructions");
-    JButton exit = createButtons("Exit");
+    final JButton buttonClassic = createButtons("Classic");
+    final JButton buttonAntiReversi = createButtons("AntiReversi");
+    final JButton buttonDemo = createButtons("Demo");
+    final JButton buttonInstructions = createButtons("Instructions");
+    final JButton exit = createButtons("Exit");
 
     buttonClassic.setToolTipText("Play to end up with the MOST number of pieces.");
     buttonAntiReversi.setToolTipText("Play to end up with the LEAST number of pieces.");
@@ -86,7 +91,7 @@ public class MainMenu extends JFrame {
 
     //Actions when button clicked
     exit.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         System.exit(0);
       }
     });
@@ -94,7 +99,7 @@ public class MainMenu extends JFrame {
 
     buttonClassic.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         try {
           ClassicMenu classicMenu = new ClassicMenu();
           frame.dispose();
@@ -107,7 +112,7 @@ public class MainMenu extends JFrame {
 
     buttonAntiReversi.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         try {
           AntiReversiMenu antiReversiMenu = new AntiReversiMenu();
           frame.dispose();
@@ -120,7 +125,7 @@ public class MainMenu extends JFrame {
 
     buttonDemo.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         AbstractGame game = new ClassicGame(GameType.DEMO, false);
         new ReversiEngine(game, new BoardUI(game));
         frame.dispose();
@@ -129,7 +134,7 @@ public class MainMenu extends JFrame {
 
     buttonInstructions.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         new RulesUI();
       }
     });
@@ -141,9 +146,9 @@ public class MainMenu extends JFrame {
     panel2.setLayout(new GridLayout(0, 1, 5, 5));
     panel2.setSize(MENU_WIDTH / 2, MENU_HEIGHT / 4);
 
-    int xOffset = (MENU_WIDTH / 4);
-    int yOffset = (MENU_HEIGHT / 4);
-    panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
+    int offsetX = (MENU_WIDTH / 4);
+    int offsetY = (MENU_HEIGHT / 4);
+    panel2.setBounds(offsetX, offsetY, panel2.getWidth(), panel2.getHeight());
 
     panel2.setOpaque(false);
     panel2.add(buttonClassic);
@@ -175,12 +180,13 @@ public class MainMenu extends JFrame {
   private Font registerFont() {
     Font customFont = new Font("Tahoma", Font.BOLD, MENU_WIDTH * 2 / 100);
     try {
-      customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
+      customFont = Font.createFont(Font.TRUETYPE_FONT,
+          this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       ge.registerFont(customFont);
       customFont = new Font(customFont.getName(), Font.PLAIN, MENU_WIDTH * 3 / 100);
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
+    } catch (IOException | FontFormatException ex) {
+      ex.printStackTrace();
     }
     return customFont;
   }

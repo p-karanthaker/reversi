@@ -1,9 +1,9 @@
 package uk.ac.aston.dc2060.group5.reversi;
 
-import uk.ac.aston.dc2060.group5.reversi.model.Piece;
-
 /**
- * Created by Sam on 09/10/2016.
+ * Models the object representation of the config.json file.
+ *
+ * <p>Created by Karan Thaker.</p>
  */
 public class Settings {
 
@@ -19,44 +19,44 @@ public class Settings {
 
   private PieceColours[] pieceNames;
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setBgColour(String bgColour) {
-    this.bgColour = bgColour;
-  }
-
-  public void setBgImage(String bgImage) {
-    this.bgImage = bgImage;
-  }
-
-  public void setOpacity(Opacity[] opacity) {
-    this.opacity = opacity;
-  }
-
-  public void setPieceColours(PieceColours[] pieceColours) {
-    this.pieceColours = pieceColours;
-  }
-
   public String getName() {
     return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getBgColour() {
     return this.bgColour;
   }
 
+  public void setBgColour(String bgColour) {
+    this.bgColour = bgColour;
+  }
+
   public String getBgImage() {
     return this.bgImage;
+  }
+
+  public void setBgImage(String bgImage) {
+    this.bgImage = bgImage;
   }
 
   public Opacity[] getOpacity() {
     return this.opacity;
   }
 
+  public void setOpacity(Opacity[] opacity) {
+    this.opacity = opacity;
+  }
+
   public PieceColours[] getPieceColours() {
     return this.pieceColours;
+  }
+
+  public void setPieceColours(PieceColours[] pieceColours) {
+    this.pieceColours = pieceColours;
   }
 
   public PieceColours[] getPieceNames() {
@@ -69,20 +69,20 @@ public class Settings {
 
     private int dark;
 
-    public void setLight(int light) {
-      this.light = light;
-    }
-
-    public void setDark(int dark) {
-      this.dark = dark;
-    }
-
     public int getLight() {
       return this.light;
     }
 
+    public void setLight(int light) {
+      this.light = light;
+    }
+
     public int getDark() {
       return this.dark;
+    }
+
+    public void setDark(int dark) {
+      this.dark = dark;
     }
   }
 
@@ -92,20 +92,20 @@ public class Settings {
 
     private String white;
 
-    public void setBlack(String black) {
-      this.black = black;
-    }
-
-    public void setWhite(String white) {
-      this.white = white;
-    }
-
     public String getBlack() {
       return this.black;
     }
 
+    public void setBlack(String black) {
+      this.black = black;
+    }
+
     public String getWhite() {
       return this.white;
+    }
+
+    public void setWhite(String white) {
+      this.white = white;
     }
   }
 

@@ -12,23 +12,42 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
+ * Models a CPU Player.
+ *
+ * <p>
  * Created by Sam on 09/10/2016.
+ * Reviewed by Karan Thaker.
+ * </p>
  */
 public class CPUPlayer extends AbstractPlayer {
 
+  /**
+   * True if the CPU is set to make smarter moves.
+   */
   private boolean hardPlayer;
 
+  /**
+   * Constructs a CPU player.
+   *
+   * @param playerColour the colour the CPU will play as.
+   * @param hard         true if the CPU should make smarter moves.
+   */
   public CPUPlayer(PieceColour playerColour, boolean hard) {
     super(playerColour);
     hardPlayer = hard;
   }
 
-
+  /**
+   * The CPU will attempt to make a move.
+   *
+   * @param game the game in which the CPU is making the move.
+   */
   public void takeTurn(AbstractGame game) {
     boolean moveTaken = false;
 
     // Get a list of the possible moves
-    List<Point> moves = Move.allPossibleMoves(game.getBoard(), game.getCurrentPlayer().getPlayerColour());
+    List<Point> moves =
+        Move.allPossibleMoves(game.getBoard(), game.getCurrentPlayer().getPlayerColour());
 
     // If hard difficulty, take a corner if there is one
     if (hardPlayer) {
@@ -52,6 +71,13 @@ public class CPUPlayer extends AbstractPlayer {
     }
   }
 
+  /**
+   * CPU will make a move.
+   *
+   * @param game       the game in which the player is playing.
+   * @param coordinate the coordinate to add the piece to.
+   * @return true if the move was successful.
+   */
   public boolean takeTurn(AbstractGame game, int coordinate) {
     return game.playerTurn(coordinate);
   }
@@ -76,6 +102,13 @@ public class CPUPlayer extends AbstractPlayer {
     return false;
   }
 
+  /**
+   * The CPU will attempt to remove moves from it's list which would enable the opponent to place a
+   * piece in a corner.
+   *
+   * @param moves the list of possible moves that the CPU can make.
+   * @return a new list of moves the CPU can make.
+   */
   private List<Point> avoidCornerOpportunity(List<Point> moves) {
     List<Point> oldList = moves.stream().collect(Collectors.toList());
     List<Point> toRemove = new ArrayList<>();

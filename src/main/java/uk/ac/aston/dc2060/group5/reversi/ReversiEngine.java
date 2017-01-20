@@ -10,12 +10,10 @@ import uk.ac.aston.dc2060.group5.reversi.players.HumanPlayer;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.AbstractGame;
 import uk.ac.aston.dc2060.group5.reversi.rulesets.GameType;
 
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -24,13 +22,33 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.SwingWorker;
 
 /**
- * Created by Sam on 09/10/2016.
+ * Controls the game play of Reversi.
+ *
+ * <p>Created by Karan Thaker.</p>
  */
 public class ReversiEngine implements Runnable {
+
+  /**
+   * The game to be controlled by the engine.
+   */
   private AbstractGame game;
+
+  /**
+   * The gui to be controlled by the game.
+   */
   private BoardUI gui;
+
+  /**
+   * The game timer.
+   */
   private Timer gameTimer;
 
+  /**
+   * Constructor for the controller.
+   *
+   * @param game the game being controlled.
+   * @param gui  the gui being controlled.
+   */
   public ReversiEngine(AbstractGame game, BoardUI gui) {
     this.game = game;
     this.gui = gui;
@@ -39,6 +57,11 @@ public class ReversiEngine implements Runnable {
     this.run();
   }
 
+  /**
+   * Runs after every move to print the state of the board to the console, check if the game has
+   * been aborted, check if the game is over, start the time in a timed game, and allow AI to make
+   * a move.
+   */
   @Override
   public void run() {
     System.out.println(this.game.getBoard());
@@ -54,11 +77,13 @@ public class ReversiEngine implements Runnable {
       Thread.currentThread().interrupt();
       return;
     } else {
+      // Start the timer if it's a timed game.
       if (this.game.isTimedGame()) {
         startTimer();
       }
 
-      if (!this.game.getGameType().equals(GameType.PVP) && this.game.getCurrentPlayer() instanceof CPUPlayer) {
+      if (!this.game.getGameType().equals(GameType.PVP)
+          && this.game.getCurrentPlayer() instanceof CPUPlayer) {
         // Execute logic from the GUI without blocking it.
         new SwingWorker<String, Void>() {
           @Override
@@ -66,8 +91,8 @@ public class ReversiEngine implements Runnable {
             // Thinking delay for AI
             try {
               TimeUnit.SECONDS.sleep(new Random().nextInt(2) + 1);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
+            } catch (InterruptedException ex) {
+              ex.printStackTrace();
             } finally {
               // Must check if the computer can still make a move after the delay.
               if (game.isTimedGame() && game.getCurrentPlayer().getTimeLeftToPlayInSeconds() <= 0) {
@@ -85,6 +110,11 @@ public class ReversiEngine implements Runnable {
     }
   }
 
+  /**
+   * Should be run after every move. Pauses the timer for the player who just moved, updates the
+   * listeners on the board tiles, passes the turn to the opposing player, updates the GUI, and then
+   * invokes the run() method.
+   */
   public void afterMove() {
     if (this.game.isTimedGame()) {
       // Pause timer first
@@ -100,17 +130,21 @@ public class ReversiEngine implements Runnable {
     // Update GUI
     this.game.update();
 
-    // Check if game is over/aborted, start the timer if game is in progress, let AI take a move if possible
+    /* Check if game is over/aborted, start the timer if game is in progress, let AI take a move
+       if possible. */
     this.run();
   }
 
+  /**
+   * Starts the timer for the player who is taking their turn. Ends their turn once the timer
+   * reaches 0.
+   */
   public void startTimer() {
     this.gameTimer = new Timer();
     this.gameTimer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
         if (game.getCurrentPlayer().getTimeLeftToPlayInSeconds() <= 0) {
-          // Pass the turn
           afterMove();
           return;
         }
@@ -122,10 +156,16 @@ public class ReversiEngine implements Runnable {
     }, 0, 1000);
   }
 
+  /**
+   * Pauses the timer for the player who just took their turn.
+   */
   public void pauseTimer() {
     this.gameTimer.cancel();
   }
 
+  /**
+   * Attempts to pass the turn to the opposing player by carrying out various conditional checks.
+   */
   public void passTurn() {
     this.game.switchPlayer();
 
@@ -168,29 +208,22 @@ public class ReversiEngine implements Runnable {
     }
   }
 
-  public void highlightMoves() {
-    List<Point> moves = Move.allPossibleMoves(game.getBoard(), game.getCurrentPlayer().getPlayerColour());
-
-    // TODO Implement rest of this functionality to highlight all possible moves on the GUI.
-  }
-
-  public void clearHighlitedMoved() {
-    // TODO Implement clearing of highlighted moves.
-  }
-
+  /**
+   * Updates the listeners on each board tile so a human player can click on the tiles.
+   */
   public void updateListeners() {
     for (BoardUI.TilePanel tiles : this.gui.getBoardPanel().getBoardTiles()) {
       if (tiles.getMouseListeners().length == 0) {
         tiles.addMouseListener(new MouseAdapter() {
           @Override
-          public void mouseClicked(MouseEvent e) {
+          public void mouseClicked(MouseEvent event) {
             // Execute logic from the GUI without blocking it.
             new SwingWorker<String, Void>() {
               @Override
               protected String doInBackground() throws Exception {
                 // Only allow mouse clicks for HumanPlayer types.
                 if (game.getCurrentPlayer() instanceof HumanPlayer) {
-                  if (game.getCurrentPlayer().takeTurn(game, ((BoardUI.TilePanel) e.getSource()).getTileId())) {
+                  if (game.getCurrentPlayer().takeTurn(game, ((BoardUI.TilePanel) event.getSource()).getTileId())) {
                     afterMove();
                   }
                 }
@@ -220,6 +253,7 @@ public class ReversiEngine implements Runnable {
         this.gui = null;
         new MainMenu();
       } catch (IOException ignored) {
+        ignored.printStackTrace();
       }
 
     });

@@ -2,16 +2,22 @@
   "name": "Classic",
   "bgColour": "#2ECC71",
   "bgImage": "",
-  "opacity": [{
-    "light": 0,
-    "dark": 40
-  }],
-  "pieceColours": [{
-    "black": "#000000",
-    "white": "#FFFFFF"
-  }],
-  "pieceNames": [{
-    "black": "Black",
-    "white": "White"
-  }]
+  "opacity": [
+    {
+      "light": 0,
+      "dark": 40
+    }
+  ],
+  "pieceColours": [
+    {
+      "black": "#000000",
+      "white": "#FFFFFF"
+    }
+  ],
+  "pieceNames": [
+    {
+      "black": "Black",
+      "white": "White"
+    }
+  ]
 }

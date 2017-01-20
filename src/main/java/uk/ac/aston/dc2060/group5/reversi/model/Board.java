@@ -44,9 +44,34 @@ public class Board {
   }
 
   /**
+   * Translates an index value into a Point. This point can then be used to
+   * access the {@link #grid} using Point.x as the column, and Point.y as the row.
+   *
+   * @param tileId the tileId which we want a Point for.
+   * @return a Point object with Point.x as the column, and Point.y as the row of the array.
+   */
+  public static Point translateIndexToPoint(final int tileId) {
+    // Translate tileId into a coordinate for 8x8 array.
+    int row = tileId / 8;
+    int col = tileId % 8;
+    return new Point(col, row);
+  }
+
+  /**
+   * Translates a Point into an index value.
+   *
+   * @param point the Point to translate into an integer value for an 8x8 grid.
+   * @return an integer representation of a Point on an 8x8 grid.
+   */
+  public static int translatePointToIndex(final Point point) {
+    return point.y * 8 + point.x;
+  }
+
+  /**
    * Returns the number of specified colour pieces currently on the board.
    *
-   * @return numPieces the number of specified colour pieces currently on the board
+   * @param pieceColour the colour of the pieces to count.
+   * @return numPieces the number of specified colour pieces currently on the board.
    */
   public int getPieceCount(PieceColour pieceColour) {
     int numPieces = 0;
@@ -85,30 +110,6 @@ public class Board {
   }
 
   /**
-   * Translates an index value into a Point. This point can then be used to
-   * access the {@link #grid} using Point.x as the column, and Point.y as the row.
-   *
-   * @param tileId the tileId which we want a Point for.
-   * @return a Point object with Point.x as the column, and Point.y as the row of the array.
-   */
-  public static Point translateIndexToPoint(final int tileId) {
-    // Translate tileId into a coordinate for 8x8 array.
-    int row = tileId / 8;
-    int col = tileId % 8;
-    return new Point(col, row);
-  }
-
-  /**
-   * Translates a Point into an index value.
-   *
-   * @param point the Point to translate into an integer value for an 8x8 grid.
-   * @return an integer representation of a Point on an 8x8 grid.
-   */
-  public static int translatePointToIndex(final Point point) {
-    return point.y * 8 + point.x;
-  }
-
-  /**
    * Sets up a standard 8x8 board with 4 pieces in the center squares. Arranged like so:
    * - - - - - - - -
    * - - - - - - - -
@@ -137,7 +138,8 @@ public class Board {
   /**
    * Adds a piece to the board.
    *
-   * @param coordinate the coordinate to add a piece to.
+   * @param coordinate  the coordinate to add a piece to.
+   * @param pieceColour the colour of the piece being added to the board.
    * @return true if a piece was added to the board.
    */
   public boolean addPiece(int coordinate, PieceColour pieceColour) {

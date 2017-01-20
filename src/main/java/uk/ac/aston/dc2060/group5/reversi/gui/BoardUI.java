@@ -67,31 +67,29 @@ import javax.swing.WindowConstants;
  */
 public class BoardUI implements Observer {
 
+  // Allows us to create a suitable size window for any screen resolution.
+  private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4 / 5;
+  private final int GAME_WIDTH = GAME_HEIGHT * 86 / 100;
   public AbstractGame game;
-
   public JFrame mainWindow;
-
-  private JMenuBar menuBar = createMenuBar();
   public JMenuItem backToMainMenuItem;
   public JMenuItem exitMenuItem;
   public JMenuItem rulesMenuItem;
   public JMenuItem settingsMenuItem;
-
+  private JMenuBar menuBar = createMenuBar();
   private BoardPanel boardPanel;
   private PlayerInfoPanel infoPanel;
   private CurrentTurnPanel currentTurnPanel;
-
   private Image bg;
   private Settings theme;
-
-  // Allows us to create a suitable size window for any screen resolution.
-  private final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-
-  private final int GAME_HEIGHT = SCREEN_SIZE.height * 4 / 5;
-  private final int GAME_WIDTH = GAME_HEIGHT * 86 / 100;
-
   private AbstractPlayer[] players;
 
+  /**
+   * Constructs the UI for the game.
+   *
+   * @param game the game the UI should be contructed for.
+   */
   public BoardUI(AbstractGame game) {
     this.loadTheme();
 
@@ -106,14 +104,6 @@ public class BoardUI implements Observer {
     this.boardPanel = new BoardPanel();
     this.mainWindow.add(boardPanel, BorderLayout.CENTER);
 
-    /*this.scorePanel = new ScorePanel();
-    this.scorePanel.setLayout(new GridLayout(0, 1));
-    this.mainWindow.add(scorePanel, BorderLayout.EAST);
-*/
-    /*this.timePanel = new TimePanel();
-    this.timePanel.setLayout(new GridLayout(1, 0));
-    this.mainWindow.add(timePanel, BorderLayout.NORTH);*/
-
     infoPanel = new PlayerInfoPanel();
     infoPanel.setLayout(new GridLayout(1, 0));
     this.mainWindow.add(infoPanel, BorderLayout.NORTH);
@@ -127,10 +117,14 @@ public class BoardUI implements Observer {
     this.mainWindow.setVisible(true);
   }
 
+  /**
+   * Loads the theme from the config.json file.
+   */
   public void loadTheme() {
     Gson gson = new Gson();
     JsonElement jsonElement = null;
-    Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
+    Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi"
+        + File.separator + "config.json");
     System.out.println(configPath);
     if (!Files.exists(configPath)) {
       try {
@@ -142,8 +136,8 @@ public class BoardUI implements Observer {
         byte[] buffer = new byte[is.available()];
         is.read(buffer);
         os.write(buffer);
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (IOException ex) {
+        ex.printStackTrace();
       }
     }
 
@@ -151,22 +145,26 @@ public class BoardUI implements Observer {
       InputStream is = new FileInputStream(configPath.toFile());
       Reader reader = new InputStreamReader(is, "UTF-8");
       theme = gson.fromJson(reader, Settings.class);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
 
     if (this.theme.getBgImage() != null && !this.theme.getBgImage().isEmpty()) {
-      InputStream bgStream = this.getClass().getResourceAsStream("/themes/" + this.theme.getBgImage());
+      InputStream bgStream =
+          this.getClass().getResourceAsStream("/themes/" + this.theme.getBgImage());
       try {
         this.bg = ImageIO.read(bgStream);
-      } catch (final IOException e) {
-        e.printStackTrace();
+      } catch (final IOException ex) {
+        ex.printStackTrace();
       }
     } else {
       this.bg = null;
     }
   }
 
+  /**
+   * UI for the popup which appears when a game is finished.
+   */
   public void endGamePopup() {
     Object[] options = {"Play Again?", "Main Menu", "Exit"};
     // Determine winner
@@ -200,13 +198,14 @@ public class BoardUI implements Observer {
         this.mainWindow.dispose();
         AbstractGame newGame;
         if (game instanceof ClassicGame) {
-          newGame = game.isTimedGame() ?
-              new ClassicGame(game.getGameType(), game.getDifficulty(), game.getTotalTimePerPlayerInSeconds()) :
-              new ClassicGame(game.getGameType(), game.getDifficulty());
+          newGame = game.isTimedGame()
+              ? new ClassicGame(game.getGameType(), game.getDifficulty(),
+              game.getTotalTimePerPlayerInSeconds())
+              : new ClassicGame(game.getGameType(), game.getDifficulty());
         } else {
-          newGame = game.isTimedGame() ?
-              new AntiReversi(game.getGameType(), game.getTotalTimePerPlayerInSeconds()) :
-              new AntiReversi(game.getGameType());
+          newGame = game.isTimedGame()
+              ? new AntiReversi(game.getGameType(), game.getTotalTimePerPlayerInSeconds())
+              : new AntiReversi(game.getGameType());
         }
         new ReversiEngine(newGame, new BoardUI(newGame));
         break;
@@ -220,8 +219,8 @@ public class BoardUI implements Observer {
         this.mainWindow.dispose();
         try {
           new MainMenu();
-        } catch (IOException e) {
-          e.printStackTrace();
+        } catch (IOException ex) {
+          ex.printStackTrace();
         }
         break;
     }
@@ -232,7 +231,7 @@ public class BoardUI implements Observer {
   }
 
   @Override
-  public void update(Observable o, Object arg) {
+  public void update(Observable observable, Object arg) {
     // Redraw board
     boardPanel.repaint();
 
@@ -241,6 +240,38 @@ public class BoardUI implements Observer {
 
     // Update time and scores
     this.infoPanel.repaint();
+  }
+
+  private JMenuBar createMenuBar() {
+    final JMenuBar menubar = new JMenuBar();
+
+    JMenu menu = new JMenu("Menu");
+    JMenu options = new JMenu("Options");
+
+    menu.setMnemonic(KeyEvent.VK_M);
+    options.setMnemonic(KeyEvent.VK_O);
+
+    backToMainMenuItem = new JMenuItem("Main Menu");
+    backToMainMenuItem.setToolTipText("Go back to main menu");
+
+    exitMenuItem = new JMenuItem("Exit");
+    exitMenuItem.setToolTipText("Exit application");
+
+    rulesMenuItem = new JMenuItem("Rules");
+    rulesMenuItem.setToolTipText("Learn the rules of Reversi");
+
+    settingsMenuItem = new JMenuItem("Settings");
+    settingsMenuItem.setToolTipText("Change the theme of the Reversi board.");
+
+    menu.add(backToMainMenuItem);
+    menu.add(exitMenuItem);
+    options.add(rulesMenuItem);
+    options.add(settingsMenuItem);
+
+    menubar.add(menu);
+    menubar.add(options);
+
+    return menubar;
   }
 
   public class BoardPanel extends JPanel {
@@ -262,8 +293,8 @@ public class BoardUI implements Observer {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-      Graphics2D g2 = (Graphics2D) g;
+    protected void paintComponent(Graphics graphics) {
+      Graphics2D g2 = (Graphics2D) graphics;
       super.paintComponent(g2);
       if (bg != null) {
         g2.drawImage(bg, 0, 0, null);
@@ -272,26 +303,26 @@ public class BoardUI implements Observer {
       }
 
       int row = 0;
-      int i = 0;
+      int index = 0;
       for (TilePanel tilePanel : boardTiles) {
-        if (i % 8 == 0 && i != 0) {
+        if (index % 8 == 0 && index != 0) {
           row++;
         }
         Settings.Opacity opacity = theme.getOpacity()[0];
         if (row % 2 == 0) {
-          if (i % 2 == 0) {
+          if (index % 2 == 0) {
             tilePanel.setBackground(new Color(0, 0, 0, opacity.getLight()));
           } else {
             tilePanel.setBackground(new Color(0, 0, 0, opacity.getDark()));
           }
         } else {
-          if (i % 2 == 0) {
+          if (index % 2 == 0) {
             tilePanel.setBackground(new Color(0, 0, 0, opacity.getDark()));
           } else {
             tilePanel.setBackground(new Color(0, 0, 0, opacity.getLight()));
           }
         }
-        i++;
+        index++;
       }
     }
 
@@ -318,16 +349,16 @@ public class BoardUI implements Observer {
       return this.tileId;
     }
 
-    protected void paintComponent(Graphics g) {
-      Graphics2D g2 = (Graphics2D) g;
+    protected void paintComponent(Graphics graphics) {
+      Graphics2D g2 = (Graphics2D) graphics;
       g2.setColor(getBackground());
-      Rectangle r = g2.getClipBounds();
-      g2.fillRect(r.x, r.y, r.width, r.height);
+      Rectangle rectangle = g2.getClipBounds();
+      g2.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 
       if (!board.getTile(this.tileId).isVacant()) {
         PieceColour pieceColour = board.getTile(this.tileId).getPiece().getPieceColour();
-        int h = getHeight();
-        int w = getWidth();
+        int height = getHeight();
+        int width = getWidth();
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -344,52 +375,55 @@ public class BoardUI implements Observer {
           g2.setColor(colour);
         }
         // Fills the circle with solid color
-        g2.fillOval(1, 1, w - 1, h - 1);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         // Adds shadows at the top
-        Paint p;
-        p = new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 0.4f), 0, getHeight(), new Color(0.0f, 0.0f, 0.0f, 0.0f));
-        g2.setPaint(p);
-        g2.fillOval(1, 1, w - 1, h - 1);
+        Paint paint;
+        paint = new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 0.4f), 0, getHeight(),
+            new Color(0.0f, 0.0f, 0.0f, 0.0f));
+        g2.setPaint(paint);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         // Adds highlights at the bottom
-        p = new GradientPaint(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.0f), 0, getHeight(), new Color(1.0f, 1.0f, 1.0f, 0.4f));
-        g2.setPaint(p);
-        g2.fillOval(1, 1, w - 1, h - 1);
+        paint = new GradientPaint(0, 0, new Color(1.0f, 1.0f, 1.0f, 0.0f), 0, getHeight(),
+            new Color(1.0f, 1.0f, 1.0f, 0.4f));
+        g2.setPaint(paint);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         // Creates dark edges for 3D effect
-        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+        paint = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 2.0f,
             new float[]{0.0f, 1.0f},
-            new Color[]{new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), 1 / 2), new Color(0.0f, 0.0f, 0.0f, 0.1f)});
-        g2.setPaint(p);
-        g2.fillOval(1, 1, w - 1, h - 1);
+            new Color[]{new Color(colour.getRed(), colour.getGreen(), colour.getBlue(), 1 / 2),
+                new Color(0.0f, 0.0f, 0.0f, 0.1f)});
+        g2.setPaint(paint);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         // Adds oval inner highlight at the bottom
-        int rTint = colour.getRed() + (255 - colour.getRed()) * 0;
-        int gTint = colour.getGreen() + (255 - colour.getGreen()) * 0;
-        int bTint = colour.getBlue() + (255 - colour.getBlue()) * 0;
+        int redTint = colour.getRed() + (255 - colour.getRed()) * 0;
+        int greenTint = colour.getGreen() + (255 - colour.getGreen()) * 0;
+        int blueTint = colour.getBlue() + (255 - colour.getBlue()) * 0;
 
-        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+        paint = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() * 1.5), getWidth() / 2.3f,
             new Point2D.Double(getWidth() / 2.0, getHeight() * 1.75 + 6),
             new float[]{0.0f, 0.8f},
-            new Color[]{colour, new Color(rTint, gTint, bTint, 0)},
+            new Color[]{colour, new Color(redTint, greenTint, blueTint, 0)},
             RadialGradientPaint.CycleMethod.NO_CYCLE,
             RadialGradientPaint.ColorSpaceType.SRGB,
             AffineTransform.getScaleInstance(1.0, 0.5));
-        g2.setPaint(p);
-        g2.fillOval(1, 1, w - 1, h - 1);
+        g2.setPaint(paint);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         // Adds oval specular highlight at the top left
-        p = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
+        paint = new RadialGradientPaint(new Point2D.Double(getWidth() / 2.0,
             getHeight() / 2.0), getWidth() / 1.4f,
             new Point2D.Double(45.0, 25.0),
             new float[]{0.0f, 0.5f},
             new Color[]{new Color(1.0f, 1.0f, 1.0f, 0.4f), new Color(1.0f, 1.0f, 1.0f, 0.0f)},
             RadialGradientPaint.CycleMethod.NO_CYCLE);
-        g2.setPaint(p);
-        g2.fillOval(1, 1, w - 1, h - 1);
+        g2.setPaint(paint);
+        g2.fillOval(1, 1, width - 1, height - 1);
 
         super.paintComponent(g2);
       } else {
@@ -409,7 +443,8 @@ public class BoardUI implements Observer {
     }
 
     private void setLabelText() {
-      String colour = game.getCurrentPlayer().getPlayerColour().equals(PieceColour.BLACK) ? theme.getPieceNames()[0].getBlack() : theme.getPieceNames()[0].getWhite();
+      String colour = game.getCurrentPlayer().getPlayerColour().equals(PieceColour.BLACK)
+          ? theme.getPieceNames()[0].getBlack() : theme.getPieceNames()[0].getWhite();
       currentTurnLabel.setText("Current Player: " + colour);
     }
 
@@ -426,8 +461,8 @@ public class BoardUI implements Observer {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
+    protected void paintComponent(Graphics graphics) {
+      super.paintComponent(graphics);
       setColours();
       setLabelText();
     }
@@ -473,8 +508,8 @@ public class BoardUI implements Observer {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
+    protected void paintComponent(Graphics graphics) {
+      super.paintComponent(graphics);
       setColours();
       setScoreLabelText();
       setTimeLabelText();
@@ -516,13 +551,14 @@ public class BoardUI implements Observer {
 
     private void registerFont() {
       try {
-        customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/fontawesome-webfont.ttf"));
+        customFont = Font.createFont(Font.TRUETYPE_FONT,
+            this.getClass().getResourceAsStream("/themes/fontawesome-webfont.ttf"));
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(customFont);
         customFont = new Font(customFont.getName(), Font.PLAIN, GAME_HEIGHT * 5 / 100);
         standardFont = new Font("Tahoma", Font.PLAIN, GAME_HEIGHT * 4 / 100);
-      } catch (IOException | FontFormatException e) {
-        e.printStackTrace();
+      } catch (IOException | FontFormatException ex) {
+        ex.printStackTrace();
       }
     }
 
@@ -552,8 +588,12 @@ public class BoardUI implements Observer {
       String s1 = Character.toString('\u221e');
       String s2 = Character.toString('\u221e');
       if (game.isTimedGame()) {
-        s1 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player1SecondsLeft), TimeUnit.SECONDS.toSeconds(player1SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player1SecondsLeft)));
-        s2 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player2SecondsLeft), TimeUnit.SECONDS.toSeconds(player2SecondsLeft) - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player2SecondsLeft)));
+        s1 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player1SecondsLeft),
+            TimeUnit.SECONDS.toSeconds(player1SecondsLeft)
+                - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player1SecondsLeft)));
+        s2 = String.format("%02d:%02d", TimeUnit.SECONDS.toMinutes(player2SecondsLeft),
+            TimeUnit.SECONDS.toSeconds(player2SecondsLeft)
+                - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(player2SecondsLeft)));
       }
 
       player1TimeIcon.setText("\uF252");
@@ -561,37 +601,5 @@ public class BoardUI implements Observer {
       player2TimeIcon.setText("\uF252");
       player2TimeLabel.setText(s2);
     }
-  }
-
-  private JMenuBar createMenuBar() {
-    JMenuBar menubar = new JMenuBar();
-
-    JMenu menu = new JMenu("Menu");
-    JMenu options = new JMenu("Options");
-
-    menu.setMnemonic(KeyEvent.VK_M);
-    options.setMnemonic(KeyEvent.VK_O);
-
-    backToMainMenuItem = new JMenuItem("Main Menu");
-    backToMainMenuItem.setToolTipText("Go back to main menu");
-
-    exitMenuItem = new JMenuItem("Exit");
-    exitMenuItem.setToolTipText("Exit application");
-
-    rulesMenuItem = new JMenuItem("Rules");
-    rulesMenuItem.setToolTipText("Learn the rules of Reversi");
-
-    settingsMenuItem = new JMenuItem("Settings");
-    settingsMenuItem.setToolTipText("Change the theme of the Reversi board.");
-
-    menu.add(backToMainMenuItem);
-    menu.add(exitMenuItem);
-    options.add(rulesMenuItem);
-    options.add(settingsMenuItem);
-
-    menubar.add(menu);
-    menubar.add(options);
-
-    return menubar;
   }
 }

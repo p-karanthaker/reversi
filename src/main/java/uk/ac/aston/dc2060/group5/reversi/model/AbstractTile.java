@@ -16,6 +16,28 @@ public abstract class AbstractTile {
   private int tileCoordinate;
 
   /**
+   * Private constructor which takes a tileCoordinate since all tiles must have a coordinate.
+   *
+   * @param tileCoordinate the coordinate of the tile on the board.
+   */
+  private AbstractTile(int tileCoordinate) {
+    this.tileCoordinate = tileCoordinate;
+  }
+
+  /**
+   * Creates a VacantTile or a FullTile depending on whether or not a Piece object is passed to it.
+   * If null is passed into the piece parameter then a VacantTile is created. Otherwise a FullTile
+   * will be created.
+   *
+   * @param tileCoordinate the coordinate at which to create the tile.
+   * @param piece          the piece to place on the tile.
+   * @return the created tile.
+   */
+  public static AbstractTile createTile(int tileCoordinate, Piece piece) {
+    return piece == null ? new VacantTile(tileCoordinate) : new FullTile(tileCoordinate, piece);
+  }
+
+  /**
    * Abstract method which returns the Piece on the tile when implemented.
    *
    * @return the Piece on the tile.
@@ -30,34 +52,12 @@ public abstract class AbstractTile {
   public abstract boolean isVacant();
 
   /**
-   * Private constructor which takes a tileCoordinate since all tiles must have a coordinate.
-   *
-   * @param tileCoordinate the coordinate of the tile on the board.
-   */
-  private AbstractTile(int tileCoordinate) {
-    this.tileCoordinate = tileCoordinate;
-  }
-
-  /**
    * Method to return the coordinate which the tile is on.
    *
    * @return the tile's coordinate on the board.
    */
   public int getTileCoordinate() {
     return tileCoordinate;
-  }
-
-  /**
-   * Creates a VacantTile or a FullTile depending on whether or not a Piece object is passed to it.
-   * If null is passed into the piece parameter then a VacantTile is created. Otherwise a FullTile
-   * will be created.
-   *
-   * @param tileCoordinate the coordinate at which to create the tile.
-   * @param piece          the piece to place on the tile.
-   * @return the created tile.
-   */
-  public static AbstractTile createTile(int tileCoordinate, Piece piece) {
-    return piece == null ? new VacantTile(tileCoordinate) : new FullTile(tileCoordinate, piece);
   }
 
   /**

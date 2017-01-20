@@ -46,6 +46,11 @@ public class AntiReversiMenu {
   private final int MENU_WIDTH = SCREEN_SIZE.width * 1 / 3;
   private TimeMode gameTimeMode;
 
+  /**
+   * Constructs the menu for AntiReversi game selection.
+   *
+   * @throws IOException throws exception if background image cannot be loaded.
+   */
   public AntiReversiMenu() throws IOException {
     //Create main window and set exit on close
     JFrame frame = new JFrame("Anti Reversi Game Menu");
@@ -68,8 +73,8 @@ public class AntiReversiMenu {
     try {
       image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
           .getImage().getScaledInstance(MENU_WIDTH, MENU_HEIGHT, Image.SCALE_SMOOTH));
-    } catch (final IOException e) {
-      e.printStackTrace();
+    } catch (final IOException ex) {
+      ex.printStackTrace();
     }
 
     JLabel background = new JLabel(image);
@@ -80,11 +85,11 @@ public class AntiReversiMenu {
     panel.add(background);
 
     //MainMenu options
-    JButton buttonPvP = createButtons("Player vs Player");
-    JButton buttonPvC = createButtons("Player vs Al");
-    JCheckBox checkBoxTimedGame = createCheckBox("Timer?");
-    JButton exit = createButtons("Exit");
-    JButton buttonBack = createButtons("Back");
+    final JButton buttonPvP = createButtons("Player vs Player");
+    final JButton buttonPvC = createButtons("Player vs Al");
+    final JCheckBox checkBoxTimedGame = createCheckBox("Timer?");
+    final JButton exit = createButtons("Exit");
+    final JButton buttonBack = createButtons("Back");
 
     buttonPvP.setToolTipText("Play against a friend.");
     buttonPvC.setToolTipText("Play against the AI.");
@@ -95,18 +100,19 @@ public class AntiReversiMenu {
 
     //Actions when button clicked
     exit.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         System.exit(0);
       }
     });
 
     checkBoxTimedGame.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         if (checkBoxTimedGame.isSelected()) {
           //Create main window and set exit on close
           JFrame dialogFrame = new JFrame();
-          JDialog dialog = new JDialog(dialogFrame, "Timer Options", Dialog.ModalityType.APPLICATION_MODAL);
+          JDialog dialog = new JDialog(dialogFrame, "Timer Options",
+              Dialog.ModalityType.APPLICATION_MODAL);
           dialog.setLayout(new GridLayout(0, 1));
           dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -117,24 +123,24 @@ public class AntiReversiMenu {
 
           dialog.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-              super.windowClosing(e);
+            public void windowClosing(WindowEvent event) {
+              super.windowClosing(event);
               checkBoxTimedGame.setSelected(false);
             }
           });
 
-          JComboBox jComboBox = new JComboBox(TimeMode.values());
+          JComboBox comboBox = new JComboBox(TimeMode.values());
           JButton okButton = new JButton("OK");
           okButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-              TimeMode chosenMode = (TimeMode) jComboBox.getSelectedItem();
+            public void actionPerformed(ActionEvent event) {
+              TimeMode chosenMode = (TimeMode) comboBox.getSelectedItem();
               gameTimeMode = chosenMode;
               dialogFrame.dispose();
             }
           });
 
-          dialog.add(jComboBox);
+          dialog.add(comboBox);
           dialog.add(okButton);
           dialog.setResizable(true);
           dialog.pack();
@@ -147,7 +153,7 @@ public class AntiReversiMenu {
 
     buttonPvP.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         AbstractGame game;
         if (checkBoxTimedGame.isSelected()) {
           game = new AntiReversi(GameType.PVP, gameTimeMode.getTimeModeLengthInSeconds());
@@ -161,7 +167,7 @@ public class AntiReversiMenu {
 
     buttonPvC.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         AbstractGame game;
         if (checkBoxTimedGame.isSelected()) {
           game = new AntiReversi(GameType.PVC, gameTimeMode.getTimeModeLengthInSeconds());
@@ -175,7 +181,7 @@ public class AntiReversiMenu {
 
     buttonBack.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         try {
           MainMenu mainMenu = new MainMenu();
           frame.dispose();
@@ -193,9 +199,9 @@ public class AntiReversiMenu {
     panel2.setLayout(new GridLayout(0, 1, 5, 5));
     panel2.setSize(MENU_WIDTH / 2, MENU_HEIGHT / 4);
 
-    int xOffset = (MENU_WIDTH / 4);
-    int yOffset = (MENU_HEIGHT / 4);
-    panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
+    int offsetX = (MENU_WIDTH / 4);
+    int offsetY = (MENU_HEIGHT / 4);
+    panel2.setBounds(offsetX, offsetY, panel2.getWidth(), panel2.getHeight());
 
     panel2.setOpaque(false);
     panel2.add(buttonPvP);
@@ -237,12 +243,13 @@ public class AntiReversiMenu {
   private Font registerFont() {
     Font customFont = new Font("Tahoma", Font.BOLD, MENU_WIDTH * 2 / 100);
     try {
-      customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
+      customFont = Font.createFont(Font.TRUETYPE_FONT,
+          this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       ge.registerFont(customFont);
       customFont = new Font(customFont.getName(), Font.PLAIN, MENU_WIDTH * 3 / 100);
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
+    } catch (IOException | FontFormatException ex) {
+      ex.printStackTrace();
     }
     return customFont;
   }

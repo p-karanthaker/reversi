@@ -47,6 +47,11 @@ public class ClassicMenu extends JFrame {
   private final int MENU_WIDTH = SCREEN_SIZE.width * 1 / 3;
   private TimeMode gameTimeMode;
 
+  /**
+   * Constructs the menu screen for Classic game selection.
+   *
+   * @throws IOException if unable to load background image.
+   */
   public ClassicMenu() throws IOException {
     //Create main window and set exit on close
     JFrame frame = new JFrame("Classic Game Menu");
@@ -69,8 +74,8 @@ public class ClassicMenu extends JFrame {
     try {
       image = new ImageIcon(new ImageIcon(ImageIO.read(imageStream))
           .getImage().getScaledInstance(MENU_WIDTH, MENU_HEIGHT, Image.SCALE_SMOOTH));
-    } catch (final IOException e) {
-      e.printStackTrace();
+    } catch (final IOException ex) {
+      ex.printStackTrace();
     }
 
     JLabel background = new JLabel(image);
@@ -81,10 +86,10 @@ public class ClassicMenu extends JFrame {
     panel.add(background);
 
     //MainMenu options
-    JButton buttonPvP = createButtons("Player vs Player");
-    JButton buttonPvC = createButtons("Player vs Al");
-    JButton exit = createButtons("Exit");
-    JButton buttonBack = createButtons("Back");
+    final JButton buttonPvP = createButtons("Player vs Player");
+    final JButton buttonPvC = createButtons("Player vs Al");
+    final JButton exit = createButtons("Exit");
+    final JButton buttonBack = createButtons("Back");
 
     buttonPvP.setToolTipText("Play against a friend.");
     buttonPvC.setToolTipText("Play against the AI.");
@@ -105,18 +110,19 @@ public class ClassicMenu extends JFrame {
 
     //Actions when button clicked
     exit.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         System.exit(0);
       }
     });
 
     checkBoxTimedGame.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         if (checkBoxTimedGame.isSelected()) {
           //Create main window and set exit on close
           JFrame dialogFrame = new JFrame();
-          JDialog dialog = new JDialog(dialogFrame, "Timer Options", Dialog.ModalityType.APPLICATION_MODAL);
+          JDialog dialog =
+              new JDialog(dialogFrame, "Timer Options", Dialog.ModalityType.APPLICATION_MODAL);
           dialog.setLayout(new GridLayout(0, 1));
           dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -127,24 +133,24 @@ public class ClassicMenu extends JFrame {
 
           dialog.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-              super.windowClosing(e);
+            public void windowClosing(WindowEvent event) {
+              super.windowClosing(event);
               checkBoxTimedGame.setSelected(false);
             }
           });
 
-          JComboBox jComboBox = new JComboBox(TimeMode.values());
+          JComboBox comboBox = new JComboBox(TimeMode.values());
           JButton okButton = new JButton("OK");
           okButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-              TimeMode chosenMode = (TimeMode) jComboBox.getSelectedItem();
+            public void actionPerformed(ActionEvent event) {
+              TimeMode chosenMode = (TimeMode) comboBox.getSelectedItem();
               gameTimeMode = chosenMode;
               dialogFrame.dispose();
             }
           });
 
-          dialog.add(jComboBox);
+          dialog.add(comboBox);
           dialog.add(okButton);
           dialog.setResizable(true);
           dialog.pack();
@@ -156,7 +162,7 @@ public class ClassicMenu extends JFrame {
 
     buttonPvP.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         AbstractGame game;
         if (checkBoxTimedGame.isSelected()) {
           game = new ClassicGame(GameType.PVP, false, gameTimeMode.getTimeModeLengthInSeconds());
@@ -170,10 +176,11 @@ public class ClassicMenu extends JFrame {
 
     buttonPvC.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         AbstractGame game;
         if (checkBoxTimedGame.isSelected()) {
-          game = new ClassicGame(GameType.PVC, checkBoxHardDifficulty.isSelected(), gameTimeMode.getTimeModeLengthInSeconds());
+          game = new ClassicGame(GameType.PVC, checkBoxHardDifficulty.isSelected(),
+              gameTimeMode.getTimeModeLengthInSeconds());
         } else {
           game = new ClassicGame(GameType.PVC, checkBoxHardDifficulty.isSelected());
         }
@@ -183,7 +190,7 @@ public class ClassicMenu extends JFrame {
     });
     buttonBack.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
+      public void actionPerformed(ActionEvent event) {
         try {
           MainMenu mainMenu = new MainMenu();
           frame.dispose();
@@ -202,9 +209,9 @@ public class ClassicMenu extends JFrame {
     panel2.setLayout(new GridLayout(0, 1, 5, 5));
     panel2.setSize(MENU_WIDTH / 2, MENU_HEIGHT / 4);
 
-    int xOffset = (MENU_WIDTH / 4);
-    int yOffset = (MENU_HEIGHT / 4);
-    panel2.setBounds(xOffset, yOffset, panel2.getWidth(), panel2.getHeight());
+    int offsetX = (MENU_WIDTH / 4);
+    int offsetY = (MENU_HEIGHT / 4);
+    panel2.setBounds(offsetX, offsetY, panel2.getWidth(), panel2.getHeight());
 
     panel2.setOpaque(false);
     panel2.add(buttonPvP);
@@ -246,12 +253,13 @@ public class ClassicMenu extends JFrame {
   private Font registerFont() {
     Font customFont = new Font("Tahoma", Font.BOLD, MENU_WIDTH * 2 / 100);
     try {
-      customFont = Font.createFont(Font.TRUETYPE_FONT, this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
+      customFont = Font.createFont(Font.TRUETYPE_FONT,
+          this.getClass().getResourceAsStream("/themes/Xolonium-Regular.ttf"));
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       ge.registerFont(customFont);
       customFont = new Font(customFont.getName(), Font.PLAIN, MENU_WIDTH * 3 / 100);
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
+    } catch (IOException | FontFormatException ex) {
+      ex.printStackTrace();
     }
     return customFont;
   }

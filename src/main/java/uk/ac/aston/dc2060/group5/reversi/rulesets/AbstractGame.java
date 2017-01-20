@@ -11,25 +11,65 @@ import java.awt.Point;
 import java.util.Observable;
 
 /**
- * Created by Sam on 09/10/2016.
+ * Models the blueprint of a game. Extends the Observable class so it can be used in an MVC pattern.
+ *
+ * <p>Created by Karan Thaker.</p>
  */
 public abstract class AbstractGame extends Observable {
 
+  /**
+   * The state of the game.
+   */
   private GameState gameState;
-  protected Board playingBoard;
+
+  /**
+   * The board used in the game.
+   */
+  private Board playingBoard;
+
+  /**
+   * An array of players in the game.
+   */
   private AbstractPlayer[] players;
-  protected GameType gameType;
+
+  /**
+   * The type of game.
+   */
+  private GameType gameType;
+
+  /**
+   * If the game is set to hard mode.
+   */
   private boolean hardDifficulty;
+
+  /**
+   * If the game is a timed game.
+   */
   private boolean timedGame;
+
+  /**
+   * The index of the current player in the players array.
+   */
   private int currentPlayer;
+
+  /**
+   * The total time per player in seconds if the game is timed.
+   */
   private int totalTimePerPlayerInSeconds = 1;
 
+  /**
+   * Super constructor for a game.
+   *
+   * @param gameType       the type of game to be played.
+   * @param hardDifficulty whether the game will be hard mode when against AI.
+   */
   public AbstractGame(GameType gameType, boolean hardDifficulty) {
     this.players = new AbstractPlayer[2];
     this.gameType = gameType;
     this.playingBoard = new Board();
     this.currentPlayer = 0;
     this.timedGame = false;
+    this.hardDifficulty = hardDifficulty;
     this.gameState = GameState.IN_PROGRESS;
 
     if (this.gameType.equals(GameType.PVP)) {
@@ -44,12 +84,19 @@ public abstract class AbstractGame extends Observable {
     }
 
     if (players.length != 2) {
-      new IllegalStateException("Not enough players!");
+      throw new IllegalStateException("Not enough players!");
     } else if (players[0].getPlayerColour().equals(players[1].getPlayerColour())) {
-      new IllegalStateException("Players cannot be of same colour!");
+      throw new IllegalStateException("Players cannot be of same colour!");
     }
   }
 
+  /**
+   * Overloaded super constructor for a timed game.
+   *
+   * @param gameType                    the type of game to be played.
+   * @param hardDifficulty              whether the game is hard against AI.
+   * @param totalTimePerPlayerInSeconds the total time each player will have to play in seconds.
+   */
   public AbstractGame(GameType gameType, boolean hardDifficulty, int totalTimePerPlayerInSeconds) {
     this(gameType, hardDifficulty);
     this.timedGame = true;
@@ -74,44 +121,91 @@ public abstract class AbstractGame extends Observable {
     return this.players[this.currentPlayer];
   }
 
+  /**
+   * Returns an array of the players in the game.
+   *
+   * @return an array of the players in the game.
+   */
   public AbstractPlayer[] getPlayers() {
     return this.players;
   }
 
+  /**
+   * Get the board being played on.
+   *
+   * @return the playing board.
+   */
   public Board getBoard() {
     return this.playingBoard;
   }
 
+  /**
+   * Get the type of game being played.
+   *
+   * @return the game type.
+   */
   public GameType getGameType() {
     return this.gameType;
   }
 
+  /**
+   * Return if the game is being played on hard mode vs AI.
+   *
+   * @return whether the game is set to hard mode.
+   */
   public boolean getDifficulty() {
     return this.hardDifficulty;
   }
 
+  /**
+   * Get the state of the game.
+   *
+   * @return wheter the game is in progress, aborted, or over.
+   */
   public GameState getGameState() {
     return this.gameState;
   }
 
+  /**
+   * Set the game state.
+   *
+   * @param newState the new state to set the game to.
+   */
   public void setGameState(GameState newState) {
     this.gameState = newState;
   }
 
+  /**
+   * Is the game a timed game?
+   *
+   * @return whether or not the game is timed.
+   */
   public boolean isTimedGame() {
     return this.timedGame;
   }
 
+  /**
+   * Get the total time each player has to play in seconds.
+   *
+   * @return the total time per player in seconds.
+   */
   public int getTotalTimePerPlayerInSeconds() {
     return this.totalTimePerPlayerInSeconds;
   }
 
-  public boolean isGameOver() {
-    return this.gameState.equals(GameState.GAVE_OVER);
-  }
-
+  /**
+   * Deterimes the winner of the game.
+   *
+   * @return the piece colour which won the game.
+   */
   public abstract Piece.PieceColour determineWinner();
 
+  /**
+   * Allows the player to take a turn.
+   *
+   * @param coordinate the coordinate to add a piece to.
+   * @return true if the move was successful.
+   */
   public boolean playerTurn(int coordinate) {
     Point point = Board.translateIndexToPoint(coordinate);
     //if the array calculated is vacant
@@ -122,14 +216,32 @@ public abstract class AbstractGame extends Observable {
     return false;
   }
 
+  /**
+   * Notify the observer of changes to the game.
+   */
   public void update() {
-    //notify observer of the changes
     setChanged();
     notifyObservers(this.getGameState());
   }
 
+  /**
+   * The state of the game.
+   */
   public enum GameState {
-    IN_PROGRESS, GAVE_OVER, ABORTED
+    /**
+     * The game is in progress.
+     */
+    IN_PROGRESS,
+
+    /**
+     * The game is finished.
+     */
+    GAVE_OVER,
+
+    /**
+     * The game was aborted.
+     */
+    ABORTED
   }
 
 }

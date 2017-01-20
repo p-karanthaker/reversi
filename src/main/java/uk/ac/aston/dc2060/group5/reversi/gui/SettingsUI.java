@@ -44,6 +44,11 @@ public class SettingsUI extends JFrame {
   private BoardUI boardUI;
   private JFrame frame;
 
+  /**
+   * Constructs the UI for the theme settings panel.
+   *
+   * @param boardUI the gui for the game.
+   */
   public SettingsUI(BoardUI boardUI) {
     this.boardUI = boardUI;
 
@@ -70,8 +75,8 @@ public class SettingsUI extends JFrame {
       InputStream is = this.getClass().getResourceAsStream("/themes/themes.json");
       Reader reader = new InputStreamReader(is, "UTF-8");
       settings = gson.fromJson(reader, Settings[].class);
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
     this.setting = settings;
 
@@ -80,16 +85,21 @@ public class SettingsUI extends JFrame {
       themeNames.add(setting.getName());
     }
 
-    JComboBox jComboBox = new JComboBox(themeNames.toArray());
-    jComboBox.addActionListener(new ActionListener() {
+    JComboBox comboBox = new JComboBox(themeNames.toArray());
+    comboBox.addActionListener(new ActionListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
-        changeTheme((String) jComboBox.getSelectedItem());
+      public void actionPerformed(ActionEvent event) {
+        changeTheme((String) comboBox.getSelectedItem());
       }
     });
-    return jComboBox;
+    return comboBox;
   }
 
+  /**
+   * Updates the config.json file with the new theme settings and updates the UI.
+   *
+   * @param settingName the name of the setting chosen.
+   */
   public void changeTheme(String settingName) {
     for (Settings setting : this.setting) {
       if (setting.getName().equals(settingName)) {
@@ -99,8 +109,8 @@ public class SettingsUI extends JFrame {
           InputStream is = this.getClass().getResourceAsStream("/config.json");
           Reader reader = new InputStreamReader(is, "UTF-8");
           jsonElement = gson.fromJson(reader, JsonElement.class);
-        } catch (IOException e) {
-          e.printStackTrace();
+        } catch (IOException event) {
+          event.printStackTrace();
         }
 
         JsonObject theme = jsonElement.getAsJsonObject();
@@ -123,17 +133,18 @@ public class SettingsUI extends JFrame {
         theme.add("pieceColours", pieceColoursList);
 
         JsonArray pieceNameList = new JsonArray();
-        JsonObject pieceNames= new JsonObject();
+        JsonObject pieceNames = new JsonObject();
         pieceNames.addProperty("black", setting.getPieceNames()[0].getBlack());
         pieceNames.addProperty("white", setting.getPieceNames()[0].getWhite());
         pieceNameList.add(pieceNames);
         theme.add("pieceNames", pieceNameList);
 
-        Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi" + File.separator + "config.json");
+        Path configPath = Paths.get(System.getProperty("user.home") + File.separator + "reversi"
+            + File.separator + "config.json");
 
         //Custom button text
         Object[] options = {"Apply", "Cancel"};
-        int n = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
+        int index = JOptionPane.showOptionDialog(this.boardUI.mainWindow,
             "Confirm to apply theme.",
             "Apply Changes",
             JOptionPane.YES_NO_OPTION,
@@ -142,12 +153,12 @@ public class SettingsUI extends JFrame {
             options,
             options[0]);
 
-        switch (n) {
+        switch (index) {
           case (JOptionPane.YES_OPTION):
             try (FileWriter fileWriter = new FileWriter(configPath.toFile())) {
               fileWriter.write(theme.toString());
-            } catch (IOException e) {
-              e.printStackTrace();
+            } catch (IOException event) {
+              event.printStackTrace();
             } finally {
               frame.dispose();
               boardUI.loadTheme();
