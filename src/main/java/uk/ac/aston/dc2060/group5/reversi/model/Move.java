@@ -76,8 +76,8 @@ public class Move {
    * @param col          the columns of the piece we want to place.
    * @param direction    the direction we are checking.
    */
-  private static void checkDirection(PieceColour playerColour, int row, int col,
-                                     final Direction direction) {
+  private static List<AbstractTile> checkDirection(PieceColour playerColour, int row, int col,
+                                                   final Direction direction) {
 
     // List of pieces which can potentially be flipped.
     List<AbstractTile> potentialPiecesToFlip = new ArrayList<AbstractTile>();
@@ -130,6 +130,48 @@ public class Move {
     } else {
       potentialPiecesToFlip.clear();
     }
+    return potentialPiecesToFlip;
+  }
+
+  /**
+   * This only works for AI as it relies on placing a piece in a known valid location. It does not
+   * check if the first piece added is in a valid spot.
+   *
+   * Looks ahead to see what the opponent can play if a given move is performed. Returns a list of
+   * moves that the opponent could play.
+   *
+   * @param row         the row of the tile to move to.
+   * @param col         the column of the tile to move to.
+   * @param board       the board being played on.
+   * @param pieceColour the colour of the player who is looking ahead.
+   * @return a list of moves that the opponent could play if the given move was taken.
+   */
+  public static List<Point> lookAheadOneMove(int row, int col, Board board, PieceColour pieceColour) {
+    // Place the piece on the board.
+    board.addPiece(Board.translatePointToIndex(new Point(col, row)), pieceColour);
+
+    List<AbstractTile> flip = new ArrayList<>();
+    // Check which pieces would be flipped.
+    for (Direction direction : Direction.values()) {
+      flip.addAll(checkDirection(pieceColour, row, col, direction));
+    }
+    Move.piecesToFlip.clear();
+
+    // Flip over the pieces. Clear static list because checkDirection populated it.
+    flip.stream().forEach(abstractTile -> abstractTile.getPiece().flipPiece());
+
+    // Find opponents moves.
+    PieceColour opponentColour = PieceColour.BLACK;
+    if (pieceColour.equals(PieceColour.BLACK)) {
+      opponentColour = PieceColour.WHITE;
+    }
+    List<Point> opponentsMoves = allPossibleMoves(board, opponentColour);
+
+    // Revert board back.
+    flip.stream().forEach(abstractTile -> abstractTile.getPiece().flipPiece());
+    board.removePiece(Board.translatePointToIndex(new Point(col, row)));
+
+    return opponentsMoves;
   }
 
   /**

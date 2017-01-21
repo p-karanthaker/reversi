@@ -1,34 +1,31 @@
 package uk.ac.aston.dc2060.group5.reversi;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+
+import uk.ac.aston.dc2060.group5.reversi.model.BoardTest;
+import uk.ac.aston.dc2060.group5.reversi.model.MoveTest;
+import uk.ac.aston.dc2060.group5.reversi.model.PieceTest;
+import uk.ac.aston.dc2060.group5.reversi.model.TileTest;
+import uk.ac.aston.dc2060.group5.reversi.players.PlayerTest;
 
 /**
- * Unit test for simple App.
+ * Unit test suite for Reversi.
+ *
+ * Created by Karan Thaker.
  */
-public class AppTest
-    extends TestCase {
-  /**
-   * Create the test case
-   *
-   * @param testName name of the test case
-   */
-  public AppTest(String testName) {
-    super(testName);
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+    BoardTest.class,
+    PieceTest.class,
+    TileTest.class,
+    MoveTest.class,
+    PlayerTest.class
+})
+public class AppTest {
+
+  public AppTest() {
+
   }
 
-  /**
-   * @return the suite of tests being tested
-   */
-  public static Test suite() {
-    return new TestSuite(AppTest.class);
-  }
-
-  /**
-   * Rigourous Test :-)
-   */
-  public void testApp() {
-    assertTrue(true);
-  }
 }

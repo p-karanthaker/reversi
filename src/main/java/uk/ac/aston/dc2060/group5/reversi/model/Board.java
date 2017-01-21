@@ -158,6 +158,18 @@ public class Board {
   }
 
   /**
+   * Make any given tile vacant.
+   *
+   * @param coordinate the coordinate of the tile to make vacant.
+   */
+  protected void removePiece(int coordinate) {
+    // Translate the coordinate to grid array.
+    Point point = translateIndexToPoint(coordinate);
+
+    this.grid[point.y][point.x] = AbstractTile.createTile(coordinate, null);
+  }
+
+  /**
    * Produces a nice string representation of the board with it's pieces.
    *
    * @return a string representation of the board with it's pieces.

@@ -52,12 +52,10 @@ public class CPUPlayer extends AbstractPlayer {
     // If hard difficulty, take a corner if there is one
     if (hardPlayer) {
       moveTaken = tryTakeCorner(moves, game);
-    }
-
-    // If hard difficulty, attempt to avoid moving anywhere that would result in a corner
-    // being available
-    if (hardPlayer) {
-      moves = avoidCornerOpportunity(moves);
+      if (!moveTaken) {
+        // Attempt to remove moves that would result in giving up a corner.
+        moves = avoidCornerOpportunity(moves, game);
+      }
     }
 
     // Pick random valid move if move has not yet been made
@@ -85,16 +83,10 @@ public class CPUPlayer extends AbstractPlayer {
 
   private boolean tryTakeCorner(List<Point> moves, AbstractGame game) {
     for (Point p : moves) {
-      if (p.getX() == 0 && p.getY() == 0) {
-        takeTurn(game, Board.translatePointToIndex(p));
-        return true;
-      } else if (p.getX() == 0 && p.getY() == 7) {
-        takeTurn(game, Board.translatePointToIndex(p));
-        return true;
-      } else if (p.getX() == 7 && p.getY() == 0) {
-        takeTurn(game, Board.translatePointToIndex(p));
-        return true;
-      } else if (p.getX() == 7 && p.getY() == 7) {
+      if (p.equals(new Point(0, 0))
+          || p.equals(new Point(7, 0))
+          || p.equals(new Point(0, 7))
+          || p.equals(new Point(7, 7))) {
         takeTurn(game, Board.translatePointToIndex(p));
         return true;
       }
@@ -107,22 +99,25 @@ public class CPUPlayer extends AbstractPlayer {
    * piece in a corner.
    *
    * @param moves the list of possible moves that the CPU can make.
+   * @param game  the game to check moves on.
    * @return a new list of moves the CPU can make.
    */
-  private List<Point> avoidCornerOpportunity(List<Point> moves) {
+  protected List<Point> avoidCornerOpportunity(List<Point> moves, AbstractGame game) {
     List<Point> oldList = moves.stream().collect(Collectors.toList());
     List<Point> toRemove = new ArrayList<>();
 
-    // Loop through the possible moves, adding all moves that could potentially
-    // allow opponent to take a corner to the toRemove list.
-    for (Point p : moves) {
-      if (p.getX() == 1 || p.getX() == 6) {
-        if (p.getY() == 1 || p.getY() == 0 || p.getY() == 6 || p.getY() == 7) {
-          toRemove.add(p);
-        }
-      } else if (p.getY() == 1 || p.getY() == 6) {
-        if (p.getX() == 1 || p.getX() == 0 || p.getX() == 6 || p.getX() == 7) {
-          toRemove.add(p);
+    // Try out a move from the list
+    for (Point moveToTry : oldList) {
+      List<Point> opponentsMoves =
+          Move.lookAheadOneMove(moveToTry.y, moveToTry.x, game.getBoard(), this.getPlayerColour());
+
+      for (Point opponentsMove : opponentsMoves) {
+        // If any of the opponent's moves are on a corner, then remove the moveToTry.
+        if (opponentsMove.equals(new Point(0, 0))
+            || opponentsMove.equals(new Point(0, 7))
+            || opponentsMove.equals(new Point(7, 0))
+            || opponentsMove.equals(new Point(7, 7))) {
+          toRemove.add(moveToTry);
         }
       }
     }
